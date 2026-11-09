@@ -355,6 +355,27 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .muted{color:var(--muted);font-weight:400}
 .small{font-size:13px}
 .ex-prev .warn{margin-top:4px;line-height:1.7}
+
+/* ---------- IELTS charts ---------- */
+.chart-fig{margin:0 auto 10px;width:100%;max-width:290px}
+.chart-fig.big{max-width:380px;margin:4px auto 14px;background:var(--surface-2);border-radius:14px;padding:6px}
+.chart-fig svg{display:block;width:100%;height:auto;font-family:var(--fa)}
+.face.col .chart-fig{margin-bottom:6px}
+.face.front.col{justify-content:center}
+.samples-btn{display:flex;align-items:center;gap:14px;width:100%;text-align:right;background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:14px 18px;margin-bottom:16px;color:var(--accent-strong)}
+.samples-btn svg{flex:none;width:48px;height:30px}
+.samples-btn span{display:flex;flex-direction:column}
+.samples-btn b{color:var(--ink);font-size:16px}
+.samples-btn small{color:var(--muted);font-size:13px}
+.smp-task{font-size:15px;color:var(--muted);line-height:1.7;margin:0 0 6px;text-align:left;font-style:italic}
+.smp-head{display:flex;justify-content:space-between;align-items:center;margin:6px 0}
+.smp-head .btn svg{width:18px;height:18px}
+.smp-text{font-size:17px;line-height:1.9;text-align:left;margin:0 0 12px}
+.smp-text mark{background:color-mix(in srgb, var(--accent) 18%, transparent);color:var(--ink);border-radius:4px;padding:0 2px;font-weight:700}
+.smp-fa{font-size:15px;line-height:2;color:var(--ink);background:var(--surface-2);border-radius:12px;padding:12px 14px;margin:10px 0 0}
+.smp-g{font-size:15px;margin:18px 0 8px}
+.smp-gloss div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.smp-gloss .lat{font-weight:700;font-size:16px}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 </style>
 </head>
@@ -429,6 +450,10 @@ button{cursor:pointer;border:0;background:none;padding:0}
         <button class="btn btn-primary" id="start-btn" type="button">شروع مرور</button>
         <button class="btn btn-ghost hidden" id="more-new-btn" type="button" style="width:100%;margin-top:10px"></button>
       </div>
+      <button class="samples-btn hidden" id="samples-btn" type="button">
+        <svg viewBox="0 0 40 24" aria-hidden="true"><polyline points="2,20 10,17 16,18 24,6 30,8 38,4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span><b>نمونه نمودار و توصیف آیلتس</b><small>Writing Task 1، با کالوکیشن‌های همین بخش</small></span>
+      </button>
       <div class="box">
         <h2>خانه‌های جعبه</h2>
         <div class="tray" id="tray"></div>
@@ -562,7 +587,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 (() => {
 'use strict';
 
-const APP_VERSION = '5.1.0';
+const APP_VERSION = '5.2.0';
 const SESSION_KEY = 'leitner:v2:session';
 const PROFILE_KEY = u => `leitner:v2:profile:${u}`;
 const LEGACY_KEY = 'leitner-es-fa:v1';
@@ -749,7 +774,7 @@ const LEVELS = {
     { id: 'C1', code: 'C1', name: 'پیشرفته', sub: 'هم‌تراز DELE C1' }
   ]
 };
-const LEVEL_COUNTS = {"en": {"A1": 898, "A2": 793, "B1": 691, "B2": 1297, "C1": 1278, "AWL": 570, "MD": 37, "TH": 41, "AN": 28, "AD": 25, "PR": 28, "AC": 32}, "es": {"A1": 1249, "A2": 1287, "B1": 853, "B2": 414, "C1": 262}};
+const LEVEL_COUNTS = {"en": {"A1": 898, "A2": 793, "B1": 691, "B2": 1297, "C1": 1278, "AWL": 570, "MD": 37, "TH": 41, "AN": 28, "AD": 25, "PR": 28, "AC": 50}, "es": {"A1": 1249, "A2": 1287, "B1": 853, "B2": 414, "C1": 262}};
 const dkey = (l, lv) => `${l}:${lv}`;
 const LEVEL_ORDER = { en: ['A1', 'A2', 'B1', 'B2', 'C1', 'AWL'], es: ['A1', 'A2', 'B1', 'B2', 'C1'] };
 const lowerLevels = (l, lv) => { const i = LEVEL_ORDER[l].indexOf(lv); return i > 0 ? LEVEL_ORDER[l].slice(0, i) : []; };
@@ -968,9 +993,9 @@ function streak(d = state) {
 let voices = [];
 function loadVoices() { if ('speechSynthesis' in window) voices = speechSynthesis.getVoices(); }
 if ('speechSynthesis' in window) { loadVoices(); speechSynthesis.addEventListener?.('voiceschanged', loadVoices); }
-function speak(text) {
+function speak(text, forceLang) {
   if (!('speechSynthesis' in window)) { toast('این دستگاه از تلفظ پشتیبانی نمی‌کند.'); return; }
-  const code = LANGS[lang].tts, base = code.slice(0, 2);
+  const code = forceLang || LANGS[lang].tts, base = code.slice(0, 2);
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text.replace(/^el\/la /, 'el ').replace(/[¿¡]/g, ''));
   u.lang = code;
@@ -1188,6 +1213,7 @@ function renderHome() {
   const L = LANGS[lang];
   $('#h-home').textContent = deckTitle();
   $('#home-sub').textContent = `${levelInfo(lang, level).name}؛ ${levelInfo(lang, level).sub}`;
+  $('#samples-btn').classList.toggle('hidden', level !== 'AC');
   $('#today-date').textContent = new Intl.DateTimeFormat('fa-IR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 
   const due = dueCards(), pool = newPool();
@@ -1231,6 +1257,7 @@ function renderHome() {
   $('#st-streak').textContent = num(streak());
 }
 $('#start-btn').addEventListener('click', () => startSession(0));
+$('#samples-btn').addEventListener('click', () => openIeltsSamples(0));
 $('#more-new-btn').addEventListener('click', () => startSession(Math.min(10, newPool().length)));
 
 /* ---------- review session ---------- */
@@ -1270,6 +1297,110 @@ function trapHTML(t) {
     const m = part.trim().match(/^(.*?)\s*(\(.*\))?$/);
     return `<s class="lat">${esc(m[1])}</s>${m[2] ? ` <span>${esc(m[2])}</span>` : ''}`;
   }).join('، ');
+}
+
+/* ---------- charts for IELTS Task 1 collocations: the phrase and the shape of the line together ---------- */
+const CH_OTHERS = ['var(--b1)', 'var(--b3)', 'var(--b5)', 'var(--b2)'];
+function chartSVG(ch, big = false) {
+  const W = big ? 340 : 280, H = big ? 200 : 118, hasX = Array.isArray(ch.x);
+  const P = { l: big ? 34 : 12, r: 14, t: big ? 26 : 12, b: hasX ? 22 : 10 };
+  const T = (x, y, t, o = {}) => `<text x="${x}" y="${y}" font-size="${o.fs || (big ? 11 : 10)}" text-anchor="${o.a || 'middle'}" fill="${o.fill || 'var(--muted)'}" font-weight="${o.fw || 400}">${esc(t)}</text>`;
+  let g = '';
+  const hlSet = (i, n) => ch.hl === 'all' || ch.hl === i || (Array.isArray(ch.hl) && i >= ch.hl[0] && i <= ch.hl[1]);
+  if (ch.t === 'pie') {
+    const v = ch.s[0], tot = v.reduce((a, b) => a + b, 0);
+    const cx = big ? 100 : 70, cy = H / 2, r = big ? 72 : 48;
+    let a0 = -Math.PI / 2;
+    v.forEach((val, i) => {
+      const a1 = a0 + val / tot * Math.PI * 2, large = a1 - a0 > Math.PI ? 1 : 0, on = hlSet(i), none = ch.hl === -1;
+      const p0 = [cx + r * Math.cos(a0), cy + r * Math.sin(a0)], p1 = [cx + r * Math.cos(a1), cy + r * Math.sin(a1)];
+      g += `<path d="M${cx},${cy} L${p0[0].toFixed(1)},${p0[1].toFixed(1)} A${r},${r} 0 ${large} 1 ${p1[0].toFixed(1)},${p1[1].toFixed(1)} Z" fill="${on ? 'var(--accent)' : CH_OTHERS[i % 4]}" fill-opacity="${on || none ? 1 : 0.4}" stroke="var(--surface)" stroke-width="2"/>`;
+      if (on || none) { const am = (a0 + a1) / 2; g += T(cx + r * 0.6 * Math.cos(am), cy + r * 0.6 * Math.sin(am) + 4, `${Math.round(val / tot * 100)}%`, { fill: '#fff', fw: 700, fs: big ? 13 : 11 }); }
+      a0 = a1;
+    });
+    if (ch.n) ch.n.forEach((nm, i) => {
+      const y = cy - (ch.n.length - 1) * 9 + i * 18, on = hlSet(i), full = on || ch.hl === -1, lx = cx + r + (big ? 26 : 22);
+      g += `<rect x="${lx}" y="${y - 7}" width="10" height="10" rx="2" fill="${on ? 'var(--accent)' : CH_OTHERS[i % 4]}" fill-opacity="${full ? 1 : 0.5}"/>`
+        + T(lx + 16, y + 2, `${nm} ${Math.round(v[i] / tot * 100)}%`, { a: 'start', fill: full ? 'var(--ink)' : 'var(--muted)', fw: on ? 700 : 400 });
+    });
+  } else {
+    const all = ch.s.flat(), n = ch.s[0].length;
+    const max = (ch.ymax || Math.max(...all)) * (ch.t === 'bar' ? 1.2 : 1.12);
+    const ih = H - P.t - P.b, iw = W - P.l - P.r;
+    const Y = v => P.t + ih * (1 - v / max);
+    if (big) for (let k = 1; k <= 3; k++) { const val = max * k / 4, y = Y(val); g += `<line x1="${P.l}" x2="${W - P.r}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-dasharray="3 4"/>` + T(P.l - 6, y + 4, +val.toFixed(1), { a: 'end' }); }
+    g += `<line x1="${P.l}" x2="${W - P.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line)" stroke-width="1.5"/>`;
+    if (ch.t === 'bar') {
+      const slot = iw / n, bw = slot * 0.5;
+      ch.s[0].forEach((val, i) => {
+        const x = P.l + slot * i + (slot - bw) / 2, on = hlSet(i);
+        g += `<rect x="${x}" y="${Y(val)}" width="${bw}" height="${Y(0) - Y(val)}" rx="4" fill="${on ? 'var(--accent)' : 'var(--b1)'}" fill-opacity="${on ? 1 : 0.35}"/>` + T(x + bw / 2, Y(val) - 5, `${val}${ch.unit || ''}`, { fill: on ? 'var(--ink)' : 'var(--muted)', fw: 700 });
+        if (hasX) g += T(x + bw / 2, H - 6, ch.x[i]);
+      });
+    } else {
+      const X = i => P.l + iw * i / (n - 1);
+      const pts = (ser, a = 0, b = n - 1) => ser.slice(a, b + 1).map((v, k) => `${X(a + k).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+      const multi = ch.s.length > 1;
+      ch.s.forEach((ser, k) => {
+        const col = multi ? (k === 0 ? 'var(--accent)' : 'var(--b1)') : 'var(--muted)';
+        g += `<polyline points="${pts(ser)}" fill="none" stroke="${col}" stroke-width="${multi ? 3 : 2}" stroke-opacity="${multi ? 1 : 0.45}" stroke-linejoin="round" stroke-linecap="round" ${multi && k > 0 ? 'stroke-dasharray="6 4"' : ''}/>`;
+        if (big) ser.forEach((v, i) => { g += `<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${col}"/>`; });
+      });
+      if (!multi) {
+        if (Array.isArray(ch.hl)) g += `<polyline points="${pts(ch.s[0], ch.hl[0], ch.hl[1])}" fill="none" stroke="var(--accent)" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+        else if (typeof ch.hl === 'number') { const x = X(ch.hl), y = Y(ch.s[0][ch.hl]); g += `<line x1="${x}" x2="${x}" y1="${y}" y2="${Y(0)}" stroke="var(--accent)" stroke-dasharray="3 3"/><circle cx="${x}" cy="${y}" r="6" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`; }
+      } else if (Array.isArray(ch.hl)) {   // where the lines cross
+        const [a, b] = ch.hl, A = ch.s[0], B = ch.s[1], d0 = A[a] - B[a], d1 = A[b] - B[b], f = d0 / (d0 - d1);
+        const x = X(a) + (X(b) - X(a)) * f, y = Y(A[a] + (A[b] - A[a]) * f);
+        g += `<circle cx="${x}" cy="${y}" r="9" fill="none" stroke="var(--ink)" stroke-width="2"/>`;
+      }
+      if (multi && ch.n) ch.n.forEach((nm, k) => {
+        const x = P.l + 6 + k * (big ? 96 : 84);
+        g += `<line x1="${x}" x2="${x + 16}" y1="${big ? 10 : 6}" y2="${big ? 10 : 6}" stroke="${k === 0 ? 'var(--accent)' : 'var(--b1)'}" stroke-width="3" ${k > 0 ? 'stroke-dasharray="5 3"' : ''}/>` + T(x + 20, big ? 14 : 10, nm, { a: 'start', fill: 'var(--ink)' });
+      });
+      if (hasX) ch.x.forEach((lb, i) => { if (n <= 7 || i === 0 || i === n - 1) g += T(X(i), H - 6, lb); });
+    }
+  }
+  return `<figure class="chart-fig ${big ? 'big' : ''}"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="نمودار" style="direction:ltr">${g}</svg></figure>`;
+}
+
+/* two complete IELTS Writing Task 1 samples, written for this app */
+const IELTS_SAMPLES = [
+  {
+    title: 'نمودار خطی',
+    task: 'The line graph shows the average number of cups of coffee and tea drunk per person per day in a European country between 2000 and 2020.',
+    chart: { t: 'line', s: [[1.2, 1.5, 2.1, 2.8, 3.0, 3.0], [3.2, 3.0, 2.6, 2.5, 1.6, 1.4]], x: ['2000', '2004', '2008', '2012', '2016', '2020'], n: ['coffee', 'tea'], ymax: 3.4 },
+    text: 'The line graph compares the average number of cups of coffee and tea that people drank per day between 2000 and 2020. Overall, coffee consumption {followed an upward trend}, whereas tea {showed a downward trend}, and coffee {overtook} tea around 2010. In 2000, coffee {stood at} 1.2 cups, {less than half} the figure for tea (3.2 cups). Coffee then {saw a sharp rise} to 2.8 cups in 2012, after which it {levelled off} at about 3 cups. Tea, by contrast, {declined steadily} to 2.5 cups in 2012 before it {plummeted} to 1.6 cups in 2016 and {hit a low} of 1.4 cups in 2020.',
+    fa: 'نمودار خطی میانگین تعداد فنجان‌های قهوه و چایی را که مردم بین سال‌های ۲۰۰۰ تا ۲۰۲۰ در روز می‌نوشیدند مقایسه می‌کند. در کل، مصرف قهوه روند صعودی داشت، در حالی که چای روند نزولی نشان داد و قهوه حدود سال ۲۰۱۰ از چای پیشی گرفت. در سال ۲۰۰۰ مصرف قهوه ۱٫۲ فنجان بود، یعنی کمتر از نصف رقم چای (۳٫۲ فنجان). سپس قهوه تا سال ۲۰۱۲ افزایش شدیدی داشت و به ۲٫۸ فنجان رسید و پس از آن در حدود ۳ فنجان ثابت ماند. در مقابل، مصرف چای تا سال ۲۰۱۲ به‌طور پیوسته به ۲٫۵ فنجان کاهش یافت، سپس تا سال ۲۰۱۶ به ۱٫۶ فنجان سقوط کرد و در سال ۲۰۲۰ به پایین‌ترین حد خود، یعنی ۱٫۴ فنجان، رسید.',
+    gloss: [['followed an upward trend', 'روند صعودی داشت'], ['showed a downward trend', 'روند نزولی نشان داد'], ['overtook', 'پیشی گرفت از'], ['stood at', 'مقدارش ... بود'], ['less than half', 'کمتر از نصفِ'], ['saw a sharp rise', 'افزایش شدیدی داشت'], ['levelled off', 'ثابت شد'], ['declined steadily', 'به‌طور پیوسته کاهش یافت'], ['plummeted', 'سقوط کرد'], ['hit a low', 'به پایین‌ترین حد رسید']]
+  },
+  {
+    title: 'نمودار دایره‌ای',
+    task: 'The pie chart shows the sources of electricity in Country X in 2022.',
+    chart: { t: 'pie', s: [[40, 26, 22, 12]], n: ['gas', 'coal', 'renewables', 'nuclear'], hl: -1 },
+    text: 'The pie chart illustrates where Country X’s electricity came from in 2022. Overall, fossil fuels {accounted for} two thirds of the total. Gas {made up the largest share}, at 40%, while coal represented {roughly a quarter} (26%). Renewables accounted for 22%, {almost twice as much as} nuclear power, which had {the lowest proportion} at just 12%.',
+    fa: 'نمودار دایره‌ای نشان می‌دهد برق کشور X در سال ۲۰۲۲ از چه منابعی تأمین شده است. در کل، سوخت‌های فسیلی دو سوم کل را تشکیل می‌دادند. گاز با ۴۰ درصد بیشترین سهم را داشت، در حالی که زغال‌سنگ تقریباً یک‌چهارم (۲۶ درصد) را تشکیل می‌داد. انرژی‌های تجدیدپذیر ۲۲ درصد سهم داشتند، یعنی تقریباً دو برابر انرژی هسته‌ای که با تنها ۱۲ درصد کمترین سهم را داشت.',
+    gloss: [['accounted for', '... را تشکیل می‌داد'], ['made up the largest share', 'بیشترین سهم را داشت'], ['roughly a quarter', 'تقریباً یک‌چهارم'], ['almost twice as much as', 'تقریباً دو برابرِ'], ['the lowest proportion', 'کمترین سهم']]
+  }
+];
+function openIeltsSamples(k = 0) {
+  const sm = IELTS_SAMPLES[k];
+  const text = esc(sm.text).replace(/\{([^}]+)\}/g, '<mark>$1</mark>');
+  const sheet = openSheet(`
+    <h2>نمونه توصیف نمودار آیلتس (Task 1)</h2>
+    <div class="seg" id="smp-seg" role="group" style="margin-bottom:14px">${IELTS_SAMPLES.map((x, i) => `<button type="button" data-k="${i}" aria-pressed="${i === k}">${x.title}</button>`).join('')}</div>
+    <p class="smp-task lat" dir="ltr">${esc(sm.task)}</p>
+    ${chartSVG(sm.chart, true)}
+    <div class="smp-head"><b>نمونه توصیف</b><button type="button" class="btn btn-ghost btn-small" id="smp-speak">${ICON.speak} گوش دادن</button></div>
+    <p class="smp-text lat" dir="ltr">${text}</p>
+    <button type="button" class="btn btn-ghost btn-small" id="smp-fa-btn" style="width:100%">نمایش ترجمه فارسی</button>
+    <p class="smp-fa hidden" id="smp-fa">${esc(sm.fa)}</p>
+    <h3 class="smp-g">کالوکیشن‌های به‌کاررفته</h3>
+    <div class="smp-gloss">${sm.gloss.map(([e, f]) => `<div><span class="lat" dir="ltr">${esc(e)}</span><span>${esc(f)}</span></div>`).join('')}</div>
+    <p class="prose">نمودار را نگاه کنید و پیش از خواندن نمونه، خودتان سعی کنید روندها را با کالوکیشن‌های همین بخش توصیف کنید؛ بعد با نمونه مقایسه کنید.</p>`);
+  sheet.querySelectorAll('#smp-seg button').forEach(b => b.onclick = () => openIeltsSamples(+b.dataset.k));
+  sheet.querySelector('#smp-speak').onclick = () => speak(sm.text.replace(/[{}]/g, ''), 'en-GB');
+  sheet.querySelector('#smp-fa-btn').onclick = e => { const f = sheet.querySelector('#smp-fa'); f.classList.toggle('hidden'); e.target.textContent = f.classList.contains('hidden') ? 'نمایش ترجمه فارسی' : 'پنهان کردن ترجمه'; };
 }
 function endSession() {
   S = null;
@@ -1328,12 +1459,14 @@ function renderReview() {
   let frontInner, backInner, frontTag, backTag;
   if (col) {
     frontTag = 'کالوکیشن'; backTag = 'کالوکیشن';
+    const chart = x.chart ? chartSVG(x.chart) : '';
     frontInner = frontIsTerm
-      ? `<div class="col-chunk lat" lang="en">${colHi(x.c)}</div><div class="col-sent lat" lang="en">${colHi(x.ex)}</div><div class="tap">معنی این ترکیب چیست؟</div>`
-      : `<div class="col-fa">${esc(c.fa)}</div><div class="col-sent lat" lang="en" id="col-gap">${colGap(x.ex, S.hint)}</div><div class="tap">کلمه جاافتاده را بنویسید</div>`;
+      ? `${chart}<div class="col-chunk lat" lang="en">${colHi(x.c)}</div><div class="col-sent lat" lang="en">${colHi(x.ex)}</div><div class="tap">معنی این ترکیب چیست؟</div>`
+      : `${chart}<div class="col-fa">${esc(c.fa)}</div><div class="col-sent lat" lang="en" id="col-gap">${colGap(x.ex, S.hint)}</div><div class="tap">کلمه جاافتاده را بنویسید</div>`;
     backInner = `<div class="col-back">
       <div class="col-chunk lat" lang="en">${colHi(x.c)}</div>
       <div class="col-fa2">${esc(c.fa)}</div>
+      ${chart}
       <div id="col-result"></div>
       <div class="col-sent lat" lang="en">${colHi(x.ex)}</div>
       <div class="col-exfa">${esc(x.exfa)}</div>

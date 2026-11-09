@@ -1,6 +1,6 @@
 /* Service Worker: جعبه لایتنر اسپانیایی
    هر بار که index.html را تغییر دادید، شماره VERSION را بالا ببرید. */
-const VERSION = 'leitner-v5.1.0';
+const VERSION = 'leitner-v5.2.0';
 const SHELL_CACHE = `${VERSION}-shell`;
 const FONT_CACHE = 'leitner-fonts';
 const SHELL = [
