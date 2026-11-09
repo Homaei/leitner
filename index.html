@@ -294,6 +294,23 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .sources{font-size:12.5px;color:var(--muted);line-height:1.9;margin:18px 4px 0}
 .list-more{padding:14px 16px;text-align:center;color:var(--muted);font-size:13px}
 .field input[readonly]{opacity:.75}
+
+.scope{margin-bottom:12px}
+.badge.lv{background:var(--surface-2);color:var(--ink);font-family:var(--lat);font-size:12px}
+.item .own{color:var(--accent);font-size:10px;margin-right:6px;vertical-align:middle}
+.word-view{display:flex;gap:14px;align-items:flex-start;background:var(--surface-2);border-radius:16px;padding:16px;margin-bottom:12px}
+.word-view .big{font-size:28px;font-weight:700;line-height:1.3;text-align:right}
+.word-view .wfa{font-size:18px;font-weight:700;margin-top:4px}
+.word-view .wnote{font-size:13px;color:var(--muted);margin-top:4px}
+.speak-inline{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--surface);color:var(--ink)}
+.speak-inline svg{width:22px;height:22px}
+.pick{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.pick-row{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border-radius:12px;background:var(--surface-2);text-align:right}
+.pick-row .lat{flex:none;font-size:17px;font-weight:700}
+.pick-row .pf{flex:1;min-width:0;font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick-row .pl{flex:none;font-size:11px;font-weight:800;color:var(--accent-strong);font-family:var(--lat)}
+.pick-row.fix{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.pick-row.sel{box-shadow:inset 0 0 0 2px var(--good)}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 </style>
 </head>
@@ -393,6 +410,10 @@ button{cursor:pointer;border:0;background:none;padding:0}
         <button class="btn btn-primary btn-small" id="add-btn" type="button">افزودن لغت</button>
         <button class="btn btn-ghost btn-small" id="bulk-btn" type="button">افزودن گروهی</button>
       </div>
+      <div class="seg scope" id="scope-seg" role="group" aria-label="محدوده لغات">
+        <button type="button" data-scope="here">همین سطح</button>
+        <button type="button" data-scope="lower" id="scope-lower">سطح‌های پایین‌تر</button>
+      </div>
       <input class="search" id="search" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
       <div class="chips" id="chips" role="group" aria-label="فیلتر بر اساس خانه"></div>
       <p class="list-count" id="list-count"></p>
@@ -490,7 +511,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 (() => {
 'use strict';
 
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '4.0.0';
 const SESSION_KEY = 'leitner:v2:session';
 const PROFILE_KEY = u => `leitner:v2:profile:${u}`;
 const LEGACY_KEY = 'leitner-es-fa:v1';
@@ -505,436 +526,16 @@ const USERS = {
   hubert: { name: 'Hubert', hash: '994f57b337999a77abf015ea58d4d8738695f506665f73dfa390987d1042086b' }
 };
 
-/* ---------- starter decks: term | fa | category ---------- */
-const STARTER_ES = `
-hola|سلام|سلام و احوال‌پرسی
-adiós|خداحافظ|سلام و احوال‌پرسی
-buenos días|صبح بخیر|سلام و احوال‌پرسی
-buenas tardes|عصر بخیر؛ بعدازظهر بخیر|سلام و احوال‌پرسی
-buenas noches|شب بخیر|سلام و احوال‌پرسی
-¿Cómo estás?|حالت چطوره؟|سلام و احوال‌پرسی
-gracias|ممنون؛ متشکرم|سلام و احوال‌پرسی
-por favor|لطفاً|سلام و احوال‌پرسی
-de nada|خواهش می‌کنم (در جواب تشکر)|سلام و احوال‌پرسی
-perdón|ببخشید|سلام و احوال‌پرسی
-mucho gusto|از آشنایی‌تان خوشوقتم|سلام و احوال‌پرسی
-hasta luego|بعداً می‌بینمت؛ فعلاً|سلام و احوال‌پرسی
-sí|بله|سلام و احوال‌پرسی
-no|نه|سلام و احوال‌پرسی
-yo|من|ضمیر
-tú|تو|ضمیر
-él|او (مرد)|ضمیر
-ella|او (زن)|ضمیر
-usted|شما (رسمی، مفرد)|ضمیر
-nosotros|ما|ضمیر
-ellos|آن‌ها|ضمیر
-ser|بودن (ویژگی ذاتی و دائمی)|فعل
-estar|بودن (حالت و مکان)|فعل
-tener|داشتن|فعل
-hacer|انجام دادن؛ ساختن|فعل
-ir|رفتن|فعل
-venir|آمدن|فعل
-decir|گفتن|فعل
-hablar|صحبت کردن|فعل
-comer|خوردن؛ غذا خوردن|فعل
-beber|نوشیدن|فعل
-vivir|زندگی کردن|فعل
-querer|خواستن؛ دوست داشتن|فعل
-poder|توانستن|فعل
-saber|دانستن (اطلاعات و مهارت)|فعل
-conocer|شناختن (آدم یا جا)|فعل
-ver|دیدن|فعل
-dar|دادن|فعل
-trabajar|کار کردن|فعل
-estudiar|درس خواندن|فعل
-aprender|یاد گرفتن|فعل
-escribir|نوشتن|فعل
-leer|خواندن (متن)|فعل
-escuchar|گوش دادن|فعل
-abrir|باز کردن|فعل
-cerrar|بستن|فعل
-comprar|خریدن|فعل
-pagar|پرداختن؛ پول دادن|فعل
-necesitar|نیاز داشتن|فعل
-dormir|خوابیدن|فعل
-salir|بیرون رفتن|فعل
-llegar|رسیدن|فعل
-pensar|فکر کردن|فعل
-entender|فهمیدن|فعل
-buscar|دنبال چیزی گشتن|فعل
-encontrar|پیدا کردن|فعل
-empezar|شروع کردن|فعل
-terminar|تمام کردن|فعل
-ayudar|کمک کردن|فعل
-esperar|منتظر ماندن؛ امید داشتن|فعل
-jugar|بازی کردن|فعل
-llamar|صدا زدن؛ تلفن زدن|فعل
-preguntar|پرسیدن|فعل
-responder|جواب دادن|فعل
-viajar|سفر کردن|فعل
-cocinar|آشپزی کردن|فعل
-caminar|پیاده رفتن|فعل
-la casa|خانه|اسم
-el agua|آب|اسم
-la comida|غذا|اسم
-el pan|نان|اسم
-la leche|شیر (نوشیدنی)|اسم
-el café|قهوه|اسم
-el té|چای|اسم
-la fruta|میوه|اسم
-la manzana|سیب|اسم
-el libro|کتاب|اسم
-la mesa|میز|اسم
-la silla|صندلی|اسم
-la puerta|در|اسم
-la ventana|پنجره|اسم
-el coche|ماشین؛ خودرو|اسم
-la calle|خیابان|اسم
-la ciudad|شهر|اسم
-el país|کشور|اسم
-el trabajo|کار؛ شغل|اسم
-la escuela|مدرسه|اسم
-el dinero|پول|اسم
-el tiempo|زمان؛ هوا (آب‌وهوا)|اسم
-el día|روز|اسم
-la noche|شب|اسم
-la semana|هفته|اسم
-el mes|ماه (تقویم)|اسم
-el año|سال|اسم
-la hora|ساعت (زمان)|اسم
-el amigo|دوست (مرد)|اسم
-la amiga|دوست (زن)|اسم
-la familia|خانواده|اسم
-el padre|پدر|اسم
-la madre|مادر|اسم
-el hermano|برادر|اسم
-la hermana|خواهر|اسم
-el hijo|پسر (فرزند)|اسم
-la hija|دختر (فرزند)|اسم
-el hombre|مرد|اسم
-la mujer|زن|اسم
-el niño|بچه؛ پسربچه|اسم
-la gente|مردم|اسم
-el perro|سگ|اسم
-el gato|گربه|اسم
-el sol|خورشید|اسم
-la luna|ماه (آسمان)|اسم
-el mar|دریا|اسم
-la mano|دست|اسم
-la cabeza|سر|اسم
-el ojo|چشم|اسم
-el corazón|قلب|اسم
-la palabra|کلمه|اسم
-el nombre|نام|اسم
-la pregunta|سؤال|اسم
-la habitación|اتاق|اسم
-el baño|حمام؛ دستشویی|اسم
-la cocina|آشپزخانه|اسم
-el teléfono|تلفن|اسم
-el médico|پزشک|اسم
-el tren|قطار|اسم
-el avión|هواپیما|اسم
-grande|بزرگ|صفت
-pequeño|کوچک|صفت
-bueno|خوب|صفت
-malo|بد|صفت
-nuevo|نو؛ جدید|صفت
-viejo|پیر؛ کهنه|صفت
-bonito|زیبا؛ قشنگ|صفت
-feliz|خوشحال|صفت
-triste|غمگین|صفت
-caliente|داغ|صفت
-frío|سرد|صفت
-fácil|آسان|صفت
-difícil|سخت|صفت
-rápido|سریع|صفت
-lento|کند؛ آهسته|صفت
-caro|گران|صفت
-barato|ارزان|صفت
-cansado|خسته|صفت
-alto|بلند؛ قدبلند|صفت
-bajo|کوتاه؛ پایین|صفت
-rojo|قرمز|رنگ
-azul|آبی|رنگ
-verde|سبز|رنگ
-amarillo|زرد|رنگ
-blanco|سفید|رنگ
-negro|سیاه|رنگ
-uno|یک|عدد
-dos|دو|عدد
-tres|سه|عدد
-cuatro|چهار|عدد
-cinco|پنج|عدد
-seis|شش|عدد
-siete|هفت|عدد
-ocho|هشت|عدد
-nueve|نه (عدد ۹)|عدد
-diez|ده|عدد
-cien|صد|عدد
-mil|هزار|عدد
-¿qué?|چه؟ چی؟|پرسشی
-¿quién?|چه کسی؟|پرسشی
-¿dónde?|کجا؟|پرسشی
-¿cuándo?|کی؟ چه وقت؟|پرسشی
-¿por qué?|چرا؟|پرسشی
-¿cómo?|چطور؟|پرسشی
-¿cuánto?|چقدر؟ چند تا؟|پرسشی
-¿cuál?|کدام؟|پرسشی
-hoy|امروز|قید و حرف
-mañana|فردا؛ صبح|قید و حرف
-ayer|دیروز|قید و حرف
-ahora|الان|قید و حرف
-siempre|همیشه|قید و حرف
-nunca|هرگز|قید و حرف
-aquí|اینجا|قید و حرف
-allí|آنجا|قید و حرف
-también|هم؛ همچنین|قید و حرف
-muy|خیلی|قید و حرف
-mucho|زیاد|قید و حرف
-poco|کم|قید و حرف
-bien|خوب (قید)|قید و حرف
-mal|بد (قید)|قید و حرف
-y|و|قید و حرف
-o|یا|قید و حرف
-pero|اما|قید و حرف
-porque|چون؛ زیرا|قید و حرف
-con|با|قید و حرف
-sin|بدون|قید و حرف
-`;
-
-const STARTER_EN = `
-hello|سلام|سلام و احوال‌پرسی
-goodbye|خداحافظ|سلام و احوال‌پرسی
-good morning|صبح بخیر|سلام و احوال‌پرسی
-good afternoon|عصر بخیر؛ بعدازظهر بخیر|سلام و احوال‌پرسی
-good night|شب بخیر|سلام و احوال‌پرسی
-How are you?|حالت چطوره؟|سلام و احوال‌پرسی
-thank you|ممنون؛ متشکرم|سلام و احوال‌پرسی
-please|لطفاً|سلام و احوال‌پرسی
-you're welcome|خواهش می‌کنم (در جواب تشکر)|سلام و احوال‌پرسی
-sorry|متأسفم؛ ببخشید|سلام و احوال‌پرسی
-excuse me|ببخشید (برای جلب توجه)|سلام و احوال‌پرسی
-nice to meet you|از آشنایی‌تان خوشوقتم|سلام و احوال‌پرسی
-see you later|بعداً می‌بینمت|سلام و احوال‌پرسی
-yes|بله|سلام و احوال‌پرسی
-no|نه|سلام و احوال‌پرسی
-I|من|ضمیر
-you|تو؛ شما|ضمیر
-he|او (مرد)|ضمیر
-she|او (زن)|ضمیر
-it|آن (برای شیء و حیوان)|ضمیر
-we|ما|ضمیر
-they|آن‌ها|ضمیر
-be|بودن|فعل
-have|داشتن|فعل
-do|انجام دادن|فعل
-make|ساختن؛ درست کردن|فعل
-go|رفتن|فعل
-come|آمدن|فعل
-say|گفتن|فعل
-tell|گفتن به کسی؛ تعریف کردن|فعل
-speak|صحبت کردن|فعل
-eat|خوردن|فعل
-drink|نوشیدن|فعل
-live|زندگی کردن|فعل
-want|خواستن|فعل
-can|توانستن|فعل
-know|دانستن؛ شناختن|فعل
-see|دیدن|فعل
-look|نگاه کردن|فعل
-give|دادن|فعل
-take|گرفتن؛ بردن|فعل
-get|گرفتن؛ به دست آوردن|فعل
-work|کار کردن|فعل
-study|درس خواندن|فعل
-learn|یاد گرفتن|فعل
-write|نوشتن|فعل
-read|خواندن (متن)|فعل
-listen|گوش دادن|فعل
-hear|شنیدن|فعل
-open|باز کردن|فعل
-close|بستن|فعل
-buy|خریدن|فعل
-pay|پرداختن؛ پول دادن|فعل
-need|نیاز داشتن|فعل
-sleep|خوابیدن|فعل
-leave|ترک کردن؛ رفتن|فعل
-arrive|رسیدن|فعل
-think|فکر کردن|فعل
-understand|فهمیدن|فعل
-find|پیدا کردن|فعل
-begin|شروع کردن|فعل
-finish|تمام کردن|فعل
-help|کمک کردن|فعل
-wait|منتظر ماندن|فعل
-play|بازی کردن؛ نواختن|فعل
-call|تلفن زدن؛ صدا زدن|فعل
-ask|پرسیدن؛ درخواست کردن|فعل
-answer|جواب دادن|فعل
-travel|سفر کردن|فعل
-cook|آشپزی کردن|فعل
-walk|پیاده رفتن؛ قدم زدن|فعل
-run|دویدن|فعل
-feel|احساس کردن|فعل
-like|دوست داشتن؛ خوش آمدن از|فعل
-love|عاشق بودن؛ خیلی دوست داشتن|فعل
-forget|فراموش کردن|فعل
-remember|به یاد آوردن|فعل
-try|تلاش کردن؛ امتحان کردن|فعل
-use|استفاده کردن|فعل
-house|خانه|اسم
-water|آب|اسم
-food|غذا|اسم
-bread|نان|اسم
-milk|شیر (نوشیدنی)|اسم
-coffee|قهوه|اسم
-tea|چای|اسم
-fruit|میوه|اسم
-apple|سیب|اسم
-book|کتاب|اسم
-table|میز|اسم
-chair|صندلی|اسم
-door|در|اسم
-window|پنجره|اسم
-car|ماشین؛ خودرو|اسم
-street|خیابان|اسم
-city|شهر|اسم
-country|کشور|اسم
-job|شغل|اسم
-school|مدرسه|اسم
-money|پول|اسم
-time|زمان؛ وقت|اسم
-weather|هوا (آب‌وهوا)|اسم
-day|روز|اسم
-night|شب|اسم
-week|هفته|اسم
-month|ماه (تقویم)|اسم
-year|سال|اسم
-hour|ساعت (مدت زمان)|اسم
-friend|دوست|اسم
-family|خانواده|اسم
-father|پدر|اسم
-mother|مادر|اسم
-brother|برادر|اسم
-sister|خواهر|اسم
-son|پسر (فرزند)|اسم
-daughter|دختر (فرزند)|اسم
-man|مرد|اسم
-woman|زن|اسم
-child|بچه؛ کودک|اسم
-people|مردم؛ آدم‌ها|اسم
-dog|سگ|اسم
-cat|گربه|اسم
-sun|خورشید|اسم
-moon|ماه (آسمان)|اسم
-sea|دریا|اسم
-hand|دست|اسم
-head|سر|اسم
-eye|چشم|اسم
-heart|قلب|اسم
-word|کلمه|اسم
-name|نام|اسم
-question|سؤال|اسم
-room|اتاق|اسم
-bathroom|حمام؛ دستشویی|اسم
-kitchen|آشپزخانه|اسم
-phone|تلفن؛ گوشی|اسم
-doctor|پزشک؛ دکتر|اسم
-train|قطار|اسم
-airplane|هواپیما|اسم
-bed|تخت‌خواب|اسم
-key|کلید|اسم
-shop|مغازه|اسم
-big|بزرگ|صفت
-small|کوچک|صفت
-good|خوب|صفت
-bad|بد|صفت
-new|نو؛ جدید|صفت
-old|پیر؛ کهنه؛ قدیمی|صفت
-beautiful|زیبا|صفت
-happy|خوشحال|صفت
-sad|غمگین|صفت
-hot|داغ؛ گرم|صفت
-cold|سرد|صفت
-easy|آسان|صفت
-difficult|سخت؛ دشوار|صفت
-fast|سریع|صفت
-slow|کند؛ آهسته|صفت
-expensive|گران|صفت
-cheap|ارزان|صفت
-tired|خسته|صفت
-tall|قدبلند؛ بلند|صفت
-short|کوتاه؛ قدکوتاه|صفت
-hungry|گرسنه|صفت
-thirsty|تشنه|صفت
-busy|مشغول؛ سرشلوغ|صفت
-ready|آماده|صفت
-important|مهم|صفت
-red|قرمز|رنگ
-blue|آبی|رنگ
-green|سبز|رنگ
-yellow|زرد|رنگ
-white|سفید|رنگ
-black|سیاه|رنگ
-one|یک|عدد
-two|دو|عدد
-three|سه|عدد
-four|چهار|عدد
-five|پنج|عدد
-six|شش|عدد
-seven|هفت|عدد
-eight|هشت|عدد
-nine|نه (عدد ۹)|عدد
-ten|ده|عدد
-hundred|صد|عدد
-thousand|هزار|عدد
-what|چه؟ چی؟|پرسشی
-who|چه کسی؟|پرسشی
-where|کجا؟|پرسشی
-when|کی؟ چه وقت؟|پرسشی
-why|چرا؟|پرسشی
-how|چطور؟|پرسشی
-how much|چقدر؟|پرسشی
-which|کدام؟|پرسشی
-today|امروز|قید و حرف
-tomorrow|فردا|قید و حرف
-yesterday|دیروز|قید و حرف
-now|الان|قید و حرف
-always|همیشه|قید و حرف
-never|هرگز|قید و حرف
-here|اینجا|قید و حرف
-there|آنجا|قید و حرف
-also|هم؛ همچنین|قید و حرف
-very|خیلی|قید و حرف
-a lot|زیاد|قید و حرف
-a little|کمی|قید و حرف
-well|خوب (قید)|قید و حرف
-again|دوباره|قید و حرف
-maybe|شاید|قید و حرف
-and|و|قید و حرف
-or|یا|قید و حرف
-but|اما|قید و حرف
-because|چون؛ زیرا|قید و حرف
-with|با|قید و حرف
-without|بدون|قید و حرف
-before|قبل از|قید و حرف
-after|بعد از|قید و حرف
-`;
-
-const parseStarter = raw => raw.trim().split('\n').map(l => l.split('|').map(s => s.trim()));
-
 const LANGS = {
   es: {
     name: 'اسپانیایی', native: 'Español', tts: 'es-ES', dict: './dict/es.txt',
     accents: ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡'],
-    starter: parseStarter(STARTER_ES),
     ph: { term: 'la ventana', fa: 'پنجره', note: 'Abre la ventana, por favor.' },
     bulkPh: 'la playa ; ساحل\nel viento = باد\nla nube - ابر ; Hay nubes hoy.'
   },
   en: {
     name: 'انگلیسی', native: 'English', tts: 'en-US', dict: './dict/en.txt',
     accents: [],
-    starter: parseStarter(STARTER_EN),
     ph: { term: 'window', fa: 'پنجره', note: 'Please open the window.' },
     bulkPh: 'beach ; ساحل\nwind = باد\ncloud - ابر ; There are clouds today.'
   }
@@ -1075,7 +676,6 @@ let user = null, profile = null, lang = null, level = null, deckKey = null, stat
 /* ---------- levels ---------- */
 const LEVELS = {
   en: [
-    { id: 'mine', code: '+', name: 'لغات من', sub: 'لغت‌هایی که خودتان اضافه می‌کنید، با کارت‌های شروع' },
     { id: 'A1', code: 'A1', name: 'مبتدی', sub: 'Oxford 3000' },
     { id: 'A2', code: 'A2', name: 'مقدماتی', sub: 'Oxford 3000' },
     { id: 'B1', code: 'B1', name: 'متوسط', sub: 'هم‌تراز آیلتس ۴ تا ۵' },
@@ -1084,7 +684,6 @@ const LEVELS = {
     { id: 'AWL', code: 'AWL', name: 'واژگان آکادمیک', sub: 'آیلتس آکادمیک؛ فهرست Coxhead در ۱۰ زیرفهرست' }
   ],
   es: [
-    { id: 'mine', code: '+', name: 'لغات من', sub: 'لغت‌هایی که خودتان اضافه می‌کنید، با کارت‌های شروع' },
     { id: 'A1', code: 'A1', name: 'مبتدی', sub: 'هم‌تراز DELE A1' },
     { id: 'A2', code: 'A2', name: 'مقدماتی', sub: 'هم‌تراز DELE A2' },
     { id: 'B1', code: 'B1', name: 'متوسط', sub: 'هم‌تراز DELE B1' },
@@ -1094,6 +693,10 @@ const LEVELS = {
 };
 const LEVEL_COUNTS = {"en": {"A1": 898, "A2": 793, "B1": 691, "B2": 1297, "C1": 1278, "AWL": 570}, "es": {"A1": 1249, "A2": 1287, "B1": 853, "B2": 414, "C1": 262}};
 const dkey = (l, lv) => `${l}:${lv}`;
+const LEVEL_ORDER = { en: ['A1', 'A2', 'B1', 'B2', 'C1', 'AWL'], es: ['A1', 'A2', 'B1', 'B2', 'C1'] };
+const lowerLevels = (l, lv) => LEVEL_ORDER[l].slice(0, LEVEL_ORDER[l].indexOf(lv));
+const bareTerm = t => String(t || '').replace(/^(el\/la|el|la|los|las)\s+/i, '');
+const sortKey = t => normTerm(bareTerm(t));
 const levelInfo = (l, lv) => LEVELS[l].find(x => x.id === lv);
 
 const VOCAB = {};
@@ -1111,11 +714,8 @@ function makeCard(term, fa, note = '', cat = '', order = 0) {
   return { id: uid(), term, fa, note, cat, box: 0, due: null, order, reviews: 0, lapses: 0, last: null, created: Date.now() };
 }
 const defaultSettings = () => ({ direction: 'fwd', newPerDay: 10, autoSpeak: false });
-function freshDeck(l) {
-  return { settings: defaultSettings(), cards: LANGS[l].starter.map(([t, f, c], i) => makeCard(t, f, '', c, i)), days: {}, newLog: {}, bonus: {} };
-}
 function freshLevelDeck() {
-  return { kind: 'level', settings: defaultSettings(), prog: {}, days: {}, newLog: {}, bonus: {} };
+  return { kind: 'level', settings: defaultSettings(), prog: {}, custom: [], days: {}, newLog: {}, bonus: {} };
 }
 function normalizeSettings(st) {
   const settings = { ...defaultSettings(), ...(st || {}) };
@@ -1131,7 +731,8 @@ function normalizeDeck(d, l) {
   return { settings: normalizeSettings(d.settings), cards, days: d.days || {}, newLog: d.newLog || {}, bonus: d.bonus || {} };
 }
 function normalizeLevelDeck(d) {
-  return { kind: 'level', settings: normalizeSettings(d.settings), prog: d.prog || {}, days: d.days || {}, newLog: d.newLog || {}, bonus: d.bonus || {} };
+  const custom = (d.custom || []).filter(c => c && c.term && c.fa).map(c => ({ ...makeCard(c.term, c.fa, c.note || '', '', -1), ...c, custom: true, id: c.id || 'c:' + uid() }));
+  return { kind: 'level', settings: normalizeSettings(d.settings), prog: d.prog || {}, custom, days: d.days || {}, newLog: d.newLog || {}, bonus: d.bonus || {} };
 }
 /* accepts version 2 (decks keyed "es"/"en") and version 3 (keyed "es:mine", "en:B2", ...) */
 function normalizeProfile(p) {
@@ -1141,7 +742,7 @@ function normalizeProfile(p) {
     if (LANGS[k]) decks[dkey(k, 'mine')] = normalizeDeck(d, k);
     else {
       const [l, lv] = k.split(':');
-      if (!LANGS[l] || !levelInfo(l, lv)) continue;
+      if (!LANGS[l] || (lv !== 'mine' && !levelInfo(l, lv))) continue;
       decks[k] = lv === 'mine' ? normalizeDeck(d, l) : normalizeLevelDeck(d);
     }
   }
@@ -1156,7 +757,7 @@ function loadProfile(u) {
 }
 function getDeck(l, lv) {
   const k = dkey(l, lv);
-  if (!profile.decks[k]) profile.decks[k] = lv === 'mine' ? freshDeck(l) : freshLevelDeck();
+  if (!profile.decks[k]) profile.decks[k] = freshLevelDeck();
   return profile.decks[k];
 }
 /* build full cards for a level deck: text from the vocabulary file, progress from storage */
@@ -1169,12 +770,17 @@ function materialize(l, lv, d) {
       box: p ? p.b : 0, due: p ? p.d : null, order: i, reviews: p ? (p.r || 0) : 0, lapses: p ? (p.l || 0) : 0, last: p ? p.t || null : null
     };
   });
+  for (const c of d.custom) cards.push({ ...c, custom: true, order: -1 });   // your own words come first among new cards
   return { kind: 'level', settings: d.settings, days: d.days, newLog: d.newLog, bonus: d.bonus, cards };
 }
 function syncLevelState() {
   if (!state || state.kind !== 'level' || !deckKey || !profile.decks[deckKey]) return;
-  const d = profile.decks[deckKey], prog = {};
+  const d = profile.decks[deckKey], prog = {}, custom = [];
   for (const c of state.cards) {
+    if (c.custom) {
+      custom.push({ id: c.id, term: c.term, fa: c.fa, note: c.note, box: c.box, due: c.due, reviews: c.reviews, lapses: c.lapses, last: c.last, created: c.created });
+      continue;
+    }
     const faChanged = c.fa !== c.base[0], noteChanged = c.note !== c.base[1];
     if (c.box > 0 || c.reviews > 0 || faChanged || noteChanged) {
       const e = { b: c.box, d: c.due, r: c.reviews, l: c.lapses, t: c.last };
@@ -1183,7 +789,7 @@ function syncLevelState() {
       prog[c.id] = e;
     }
   }
-  d.prog = prog; d.settings = state.settings; d.days = state.days; d.newLog = state.newLog; d.bonus = state.bonus;
+  d.prog = prog; d.custom = custom; d.settings = state.settings; d.days = state.days; d.newLog = state.newLog; d.bonus = state.bonus;
 }
 function save() {
   if (!user || !profile) return;
@@ -1210,21 +816,52 @@ function migrateLegacy() {
     return true;
   } catch (e) { return false; }
 }
+/* version 3 had a separate "my words" deck per language: move each card into the level that contains it
+   (keeping its progress); words that are in no level, such as your own phrases, join level A1 */
+function migrateMine(l) {
+  const k = dkey(l, 'mine'), old = profile.decks[k], v = VOCAB[l];
+  if (!old || !v) return false;
+  const map = new Map();
+  for (const lv of LEVEL_ORDER[l]) for (const e of v[lv] || []) { const nb = sortKey(e[1]); if (!map.has(nb)) map.set(nb, [lv, e]); }
+  const a1 = getDeck(l, 'A1');
+  for (const c of old.cards || []) {
+    const hit = map.get(sortKey(c.term)), used = (c.box || 0) > 0 || (c.reviews || 0) > 0;
+    if (hit) {
+      const [lv, [id, , fa]] = hit, d = getDeck(l, lv), cur = d.prog[id];
+      const e = cur ? { ...cur } : { b: 0, d: null, r: 0, l: 0, t: null };
+      if (used && (e.r || 0) <= (c.reviews || 0)) Object.assign(e, { b: c.box, d: c.due, r: c.reviews || 0, l: c.lapses || 0, t: c.last || null });
+      if (!c.cat && c.fa && normFa(c.fa) !== normFa(fa)) e.fa = c.fa;   // a meaning you wrote yourself stays
+      if (!c.cat && c.note) e.note = c.note;
+      if (used || e.fa || e.note) d.prog[id] = e;
+    } else if (!a1.custom.some(x => sortKey(x.term) === sortKey(c.term))) {
+      a1.custom.push({ ...makeCard(c.term, c.fa, c.note || '', '', -1), box: c.box || 0, due: c.due ?? null, reviews: c.reviews || 0, lapses: c.lapses || 0, last: c.last || null, id: 'c:' + uid(), custom: true });
+    }
+  }
+  for (const [day, x] of Object.entries(old.days || {})) {
+    const y = a1.days[day] || (a1.days[day] = { r: 0, ok: 0 });
+    y.r += x.r || 0; y.ok += x.ok || 0;
+  }
+  delete profile.decks[k];
+  return true;
+}
+function migrateAllMine() {
+  for (const l of Object.keys(LANGS)) {
+    if (!profile.decks[dkey(l, 'mine')]) continue;
+    loadVocab(l).then(v => { if (v && profile && migrateMine(l)) { save(); render(); toast('لغات قبلی شما در سطح‌ها ادغام شد.'); } });
+  }
+}
+
 /* stats for any deck without building all of its cards */
 function summarize(l, lv) {
   const d = getDeck(l, lv);
-  if (d.kind !== 'level') {
-    const counts = boxCounts(d);
-    return { total: d.cards.length, counts, today: todayTotal(d), streak: streak(d), started: true };
-  }
   const t = today(), counts = Array(7).fill(0);
   let due = 0, touched = 0;
-  for (const e of Object.values(d.prog)) {
+  for (const e of [...Object.values(d.prog), ...d.custom.map(c => ({ b: c.box, d: c.due }))]) {
     if (e.b > 0) { counts[e.b]++; touched++; if (e.b <= 5 && e.d <= t) due++; }
   }
-  const total = LEVEL_COUNTS[l][lv] || 0;
+  const total = (LEVEL_COUNTS[l][lv] || 0) + d.custom.length;
   counts[0] = Math.max(0, total - touched);
-  const started = touched > 0 || Object.keys(d.days).length > 0;
+  const started = touched > 0 || d.custom.length > 0 || Object.keys(d.days).length > 0;
   return { total, counts, today: due + Math.min(newAllowanceToday(d), counts[0]), streak: streak(d), started };
 }
 
@@ -1336,9 +973,9 @@ function login(key, interactive) {
   user = key;
   profile = loadProfile(key);
   try { localStorage.setItem(SESSION_KEY, key); } catch (e) {}
-  for (const l of Object.keys(LANGS)) getDeck(l, 'mine');
   const migrated = migrateLegacy();
   save();
+  migrateAllMine();
   showScreen('langs');
   if (migrated) toast('پیشرفت نسخه قبلی به جعبه اسپانیایی شما منتقل شد.');
   else if (interactive) toast(`خوش آمدید ${USERS[key].name}`);
@@ -1372,7 +1009,7 @@ function renderLangs() {
     }
     return `<button type="button" class="lang-card" data-lang="${l}" aria-label="${L.name}، ${num(todayN)} کارت برای امروز">
       <div class="head">
-        <div><span class="native" lang="${l}">${L.native}</span><span class="faname">${L.name} به فارسی، ${num(LEVELS[l].length - 1)} سطح</span></div>
+        <div><span class="native" lang="${l}">${L.native}</span><span class="faname">${L.name} به فارسی، ${num(LEVELS[l].length)} سطح</span></div>
         <div class="due ${todayN ? '' : 'zero'}"><b>${num(todayN)}</b><span>${todayN ? 'برای امروز' : 'امروز تمام'}</span></div>
       </div>
       <div class="mini" aria-hidden="true">${miniBars(counts)}</div>
@@ -1383,7 +1020,8 @@ function renderLangs() {
 }
 function openLang(l) {
   lang = l;
-  loadVocab(l); loadDict(l);
+  loadVocab(l).then(v => { if (v && profile && migrateMine(l)) { save(); render(); } });
+  loadDict(l);
   showScreen('levels');
 }
 
@@ -1401,7 +1039,7 @@ function renderLevels() {
     const started = sm.total - sm.counts[0];
     const pct = sm.total ? Math.round(started / sm.total * 100) : 0;
     const mpct = sm.total ? Math.round(sm.counts[MASTERED] / sm.total * 100) : 0;
-    return `<button type="button" class="lvl ${lv.id === 'mine' ? 'mine' : ''}" data-lv="${lv.id}">
+    return `<button type="button" class="lvl" data-lv="${lv.id}">
       <span class="code">${lv.code}</span>
       <span class="info"><b>${lv.name}</b><small>${lv.sub}</small>
         <span class="bar" aria-hidden="true"><i class="s" style="width:${pct}%"></i><i class="m" style="width:${mpct}%"></i></span>
@@ -1413,13 +1051,12 @@ function renderLevels() {
   $('#sources').textContent = SOURCES[lang];
 }
 async function openDeck(lv) {
-  const d = getDeck(lang, lv);
-  if (lv !== 'mine') {
-    let v = VOCAB[lang];
-    if (!v) { toast('در حال بارگذاری لغات…'); v = await loadVocab(lang); }
-    if (!v) { toast('بار اول برای دریافت لغات این سطح اینترنت لازم است.'); return; }
-    state = materialize(lang, lv, d);
-  } else state = d;
+  let v = VOCAB[lang];
+  if (!v) { toast('در حال بارگذاری لغات…'); v = await loadVocab(lang); }
+  if (!v) { toast('بار اول برای دریافت لغات این سطح اینترنت لازم است.'); return; }
+  if (migrateMine(lang)) save();
+  state = materialize(lang, lv, getDeck(lang, lv));
+  scope = 'here';
   level = lv; deckKey = dkey(lang, lv);
   filter = 'all'; $('#search').value = '';
   showScreen('deck');
@@ -1429,7 +1066,7 @@ function closeDeck() { save(); state = null; level = null; deckKey = null; showS
 const isLevelDeck = () => !!state && state.kind === 'level';
 function deckTitle() {
   const L = LANGS[lang], lv = levelInfo(lang, level);
-  return level === 'mine' ? `${L.name}: لغات من` : `${L.name} ${lv.code}`;
+  return `${L.name} ${lv.code}`;
 }
 
 (function installHint() {
@@ -1447,7 +1084,7 @@ const INTERVAL_LABEL = ['', 'هر روز', '۲ روز', '۴ روز', '۸ روز'
 function renderHome() {
   const L = LANGS[lang];
   $('#h-home').textContent = deckTitle();
-  $('#home-sub').textContent = level === 'mine' ? `جعبه ${USERS[user].name}` : `${levelInfo(lang, level).name}؛ ${levelInfo(lang, level).sub}`;
+  $('#home-sub').textContent = `${levelInfo(lang, level).name}؛ ${levelInfo(lang, level).sub}`;
   $('#today-date').textContent = new Intl.DateTimeFormat('fa-IR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 
   const due = dueCards(), pool = newPool();
@@ -1644,30 +1281,81 @@ document.addEventListener('keydown', e => {
 /* ---------- cards list ---------- */
 let filter = 'all';
 const FILTERS = [['all', 'همه'], ['0', 'جدید'], ['1', 'خانه ۱'], ['2', 'خانه ۲'], ['3', 'خانه ۳'], ['4', 'خانه ۴'], ['5', 'خانه ۵'], ['6', 'آموخته']];
+let scope = 'here';
+const collator = () => new Intl.Collator(lang === 'es' ? 'es' : 'en', { sensitivity: 'base', ignorePunctuation: true });
 function renderCards() {
-  const L = LANGS[lang], counts = boxCounts();
-  $('#h-cards').textContent = `کارت‌های ${deckTitle().replace(':', '،')}`;
-  $('#cards-total').textContent = isLevelDeck() ? `${num(state.cards.length)} کارت؛ برای افزودن لغت به «لغات من» بروید` : `${num(state.cards.length)} کارت`;
-  document.querySelector('#view-cards .toolbar').classList.toggle('hidden', isLevelDeck());
+  const L = LANGS[lang], counts = boxCounts(), lower = lowerLevels(lang, level);
+  const mine = state.cards.filter(c => c.custom).length;
+  $('#h-cards').textContent = `کارت‌های ${deckTitle()}`;
+  $('#cards-total').textContent = `${num(state.cards.length)} کارت${mine ? `، ${num(mine)} لغت از خودتان` : ''}`;
+  $('#scope-seg').classList.toggle('hidden', !lower.length);
+  if (!lower.length) scope = 'here';
+  $('#scope-lower').textContent = lower.length === 1 ? `سطح ${lower[0]}` : `سطح‌های ${lower[0]} تا ${lower[lower.length - 1]}`;
+  document.querySelectorAll('#scope-seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.scope === scope));
+  document.querySelector('#view-cards .toolbar').classList.toggle('hidden', scope !== 'here');
+  $('#chips').classList.toggle('hidden', scope !== 'here');
   $('#search').placeholder = `جستجوی کلمه ${L.name} یا فارسی`;
-  $('#chips').innerHTML = FILTERS.map(([k, l]) => `<button type="button" class="chip" data-f="${k}" aria-pressed="${filter === k}">${l} (${num(k === 'all' ? state.cards.length : counts[+k])})</button>`).join('');
-  $('#chips').querySelectorAll('.chip').forEach(b => b.onclick = () => { filter = b.dataset.f; renderCards(); });
   const q = $('#search').value, qT = normTerm(q), qF = normFa(q);
-  let list = state.cards;
-  if (filter !== 'all') list = list.filter(c => c.box === +filter);
-  if (q.trim()) list = list.filter(c => normTerm(c.term).includes(qT) || normFa(c.fa).includes(qF) || normFa(c.note).includes(qF));
-  list = list.slice().sort((a, b) => a.box - b.box || a.order - b.order);
-  $('#list-count').textContent = q.trim() || filter !== 'all' ? `${num(list.length)} نتیجه` : '';
-  if (!list.length) {
-    $('#list').innerHTML = `<div class="empty">${q.trim() ? (isLevelDeck() ? 'این لغت در این سطح نیست. می‌توانید آن را در «لغات من» اضافه کنید.' : 'کارتی با این جستجو پیدا نشد. با «افزودن لغت» آن را اضافه کنید.') : 'این خانه فعلاً خالی است.'}</div>`;
+  const match = c => !q.trim() || normTerm(c.term).includes(qT) || normFa(c.fa).includes(qF) || normFa(c.note).includes(qF);
+  const cmp = collator();
+  const LIMIT = 300;
+
+  if (scope === 'lower') {
+    // words of easier levels: browse and add to this box if you want; they are not reviewed here
+    const v = VOCAB[lang], list = [];
+    for (const lv of lower) for (const [id, term, fa, note] of v[lv] || []) {
+      const c = { lv, id, term, fa, note };
+      if (match(c)) list.push(c);
+    }
+    list.sort((a, b) => cmp.compare(sortKey(a.term), sortKey(b.term)));
+    $('#list-count').textContent = `${num(list.length)} لغت از سطح‌های پایین‌تر؛ این‌ها در مرور این جعبه نمی‌آیند مگر اضافه‌شان کنید.`;
+    if (!list.length) { $('#list').innerHTML = `<div class="empty">لغتی با این جستجو پیدا نشد.</div>`; return; }
+    const shown = list.slice(0, LIMIT);
+    $('#list').innerHTML = shown.map((c, i) => `<button type="button" class="item" data-i="${i}"><span class="t"><span class="lat" lang="${lang}">${esc(c.term)}</span><span class="f">${esc(c.fa)}</span></span><span class="badge lv">${c.lv}</span></button>`).join('')
+      + (list.length > LIMIT ? `<div class="list-more">${num(list.length - LIMIT)} لغت دیگر؛ برای پیدا کردن، جستجو کنید.</div>` : '');
+    $('#list').querySelectorAll('.item').forEach(b => b.onclick = () => openLowerWord(shown[+b.dataset.i]));
     return;
   }
-  const LIMIT = 300, shown = list.slice(0, LIMIT);
+
+  $('#chips').innerHTML = FILTERS.map(([k, l]) => `<button type="button" class="chip" data-f="${k}" aria-pressed="${filter === k}">${l} (${num(k === 'all' ? state.cards.length : counts[+k])})</button>`).join('')
+    + (mine ? `<button type="button" class="chip" data-f="mine" aria-pressed="${filter === 'mine'}">لغات من (${num(mine)})</button>` : '');
+  $('#chips').querySelectorAll('.chip').forEach(b => b.onclick = () => { filter = b.dataset.f; renderCards(); });
+  let list = state.cards;
+  if (filter === 'mine') list = list.filter(c => c.custom);
+  else if (filter !== 'all') list = list.filter(c => c.box === +filter);
+  list = list.filter(match).sort((a, b) => cmp.compare(sortKey(a.term), sortKey(b.term)));
+  $('#list-count').textContent = q.trim() || filter !== 'all' ? `${num(list.length)} نتیجه` : '';
+  if (!list.length) {
+    $('#list').innerHTML = `<div class="empty">${q.trim() ? 'این لغت در این جعبه نیست. با «افزودن لغت» آن را از دیکشنری اضافه کنید.' : 'این خانه فعلاً خالی است.'}</div>`;
+    return;
+  }
+  const shown = list.slice(0, LIMIT);
   $('#list').innerHTML = shown.map(c => {
     const badge = c.box === 0 ? `<span class="badge new">نو</span>` : c.box === MASTERED ? `<span class="badge mastered">✓</span>` : `<span class="badge" style="--bx:${BOX_COLORS[c.box]}">${num(c.box)}</span>`;
-    return `<button type="button" class="item" data-id="${esc(c.id)}"><span class="t"><span class="lat" lang="${lang}">${esc(c.term)}</span><span class="f">${esc(c.fa)}</span></span>${badge}</button>`;
+    return `<button type="button" class="item" data-id="${esc(c.id)}"><span class="t"><span class="lat" lang="${lang}">${esc(c.term)}${c.custom ? '<span class="own" title="لغت شما">●</span>' : ''}</span><span class="f">${esc(c.fa)}</span></span>${badge}</button>`;
   }).join('') + (list.length > LIMIT ? `<div class="list-more">${num(list.length - LIMIT)} کارت دیگر؛ برای پیدا کردن، جستجو کنید یا خانه را انتخاب کنید.</div>` : '');
   $('#list').querySelectorAll('.item').forEach(b => b.onclick = () => editCard(b.dataset.id));
+}
+document.querySelectorAll('#scope-seg button').forEach(b => b.addEventListener('click', () => { scope = b.dataset.scope; renderCards(); }));
+
+function openLowerWord(w) {
+  const L = LANGS[lang], here = levelInfo(lang, level).code;
+  const p = getDeck(lang, w.lv).prog[w.id];
+  const where = p && p.b > 0 ? (p.b === MASTERED ? `در جعبه ${w.lv} آموخته‌اید.` : `در جعبه ${w.lv}، خانه ${num(p.b)} است.`) : `هنوز در جعبه ${w.lv} مرور نشده.`;
+  const already = state.cards.find(c => sortKey(c.term) === sortKey(w.term));
+  const sheet = openSheet(`
+    <h2>لغت سطح ${w.lv}</h2>
+    <div class="word-view">
+      <button class="speak-inline" type="button" id="w-speak" aria-label="تلفظ">${ICON.speak}</button>
+      <div><div class="lat big" lang="${lang}">${esc(w.term)}</div><div class="wfa">${esc((p && p.fa) || w.fa)}</div>${w.note ? `<div class="wnote">${esc(w.note)}</div>` : ''}</div>
+    </div>
+    <p class="prose">${where} لغات سطح‌های پایین‌تر در مرور جعبه ${here} نمی‌آیند، مگر خودتان اضافه‌شان کنید.</p>
+    <div class="btn-row">${already ? `<button type="button" class="btn btn-ghost" disabled>در جعبه ${here} هست</button>` : `<button type="button" class="btn btn-primary" id="w-add">افزودن به جعبه ${here}</button>`}</div>`);
+  sheet.querySelector('#w-speak').onclick = () => speak(w.term);
+  sheet.querySelector('#w-add')?.addEventListener('click', () => {
+    state.cards.push({ ...makeCard(w.term, (p && p.fa) || w.fa, w.note, '', -1), id: 'c:' + uid(), custom: true });
+    save(); closeSheet(); render(); toast(`«${w.term}» به جعبه ${here} اضافه شد.`);
+  });
 }
 $('#search').addEventListener('input', renderCards);
 
@@ -1698,76 +1386,132 @@ function replaceRange(input, start, end, text) {
   const p = start + text.length; input.focus(); input.setSelectionRange(p, p);
 }
 
+/* index of every level word of a language, for picking words when adding */
+const VIDX = {};
+function vocabIndex(l) {
+  if (VIDX[l]) return VIDX[l];
+  const v = VOCAB[l]; if (!v) return null;
+  const arr = [], order = LEVEL_ORDER[l];
+  for (const lv of order) for (const [id, term, fa, note] of v[lv] || []) arr.push({ lv, id, term, fa, note, nb: sortKey(term) });
+  arr.sort((x, y) => x.nb.length - y.nb.length || order.indexOf(x.lv) - order.indexOf(y.lv));
+  return (VIDX[l] = arr);
+}
+function vocabMatches(l, q, limit = 4) {
+  const idx = vocabIndex(l);
+  if (!idx || q.length < 2) return [];
+  const out = [], seen = new Set();
+  for (const e of idx) {
+    if (e.nb.startsWith(q) && !seen.has(e.nb)) { seen.add(e.nb); out.push(e); if (out.length >= limit) break; }
+  }
+  return out;
+}
+const VMAP = {};
+function vocabByWord(l) {   // bare word -> first (lowest-level) entry
+  if (VMAP[l]) return VMAP[l];
+  const idx = vocabIndex(l); if (!idx) return null;
+  const m = new Map();
+  for (const lv of LEVEL_ORDER[l]) for (const e of idx) if (e.lv === lv && !m.has(e.nb)) m.set(e.nb, e);
+  return (VMAP[l] = m);
+}
+const isVocabTerm = (l, term) => (vocabIndex(l) || []).some(e => normTerm(e.term) === normTerm(term));
+
 function editCard(id) {
-  const L = LANGS[lang], c = id ? byId(id) : null;
-  const ro = !!c && isLevelDeck();   // level words: the word itself is fixed, meaning and note are editable
+  const L = LANGS[lang], here = levelInfo(lang, level).code, c = id ? byId(id) : null;
+  const ro = !!c && !c.custom;   // level words: the word itself is fixed, meaning and note are editable
   const overridden = ro && (c.fa !== c.base[0] || c.note !== c.base[1]);
   const sheet = openSheet(`
-    <h2>${c ? 'ویرایش کارت' : `لغت تازه ${L.name}`}</h2>
+    <h2>${!c ? `افزودن لغت به جعبه ${L.name} ${here}` : ro ? `کارت ${L.name} ${here}` : 'ویرایش لغت شما'}</h2>
     <div class="field">
-      <label for="f-term">کلمه ${L.name}</label>
-      <input id="f-term" class="lat" lang="${lang}" dir="ltr" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="${c ? esc(c.term) : ''}" placeholder="${esc(L.ph.term)}" ${ro ? 'readonly' : ''}>
-      <div class="sugg" id="f-sugg" aria-label="پیشنهادهای دیکشنری"></div>
+      <label for="f-term">${ro ? `کلمه ${L.name}` : `کلمه ${L.name} (از دیکشنری انتخاب کنید)`}</label>
+      <input id="f-term" class="lat" lang="${lang}" dir="ltr" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="${c ? esc(c.term) : ''}" placeholder="${ro ? '' : 'شروع به تایپ کنید…'}" ${ro ? 'readonly' : ''}>
+      <div class="pick" id="f-pick" role="listbox" aria-label="پیشنهادهای دیکشنری"></div>
       <div class="fstatus" id="f-status" aria-live="polite"></div>
       ${L.accents.length && !ro ? `<div class="accents">${L.accents.map(a => `<button type="button" data-ch="${a}">${a}</button>`).join('')}</div>` : ''}
     </div>
     <div class="field">
       <label for="f-fa">معنی فارسی</label>
-      <input id="f-fa" autocomplete="off" value="${c ? esc(c.fa) : ''}" placeholder="${esc(L.ph.fa)}">
+      <input id="f-fa" autocomplete="off" value="${c ? esc(c.fa) : ''}" placeholder="معنی را بنویسید">
     </div>
     <div class="field">
       <label for="f-note">مثال یا یادداشت (اختیاری)</label>
       <textarea id="f-note" dir="auto" placeholder="${esc(L.ph.note)}">${c ? esc(c.note) : ''}</textarea>
     </div>
     <div class="check hidden" id="f-check"></div>
-    ${c ? `<p class="prose">${c.box === 0 ? 'هنوز مرور نشده.' : c.box === MASTERED ? 'آموخته‌شده.' : `در خانه ${num(c.box)}؛ ${num(c.reviews)} بار مرور، ${num(c.lapses)} بار فراموشی.`}</p>` : ''}
+    ${c ? `<p class="prose">${c.custom ? 'لغت خودتان. ' : ''}${c.box === 0 ? 'هنوز مرور نشده.' : c.box === MASTERED ? 'آموخته‌شده.' : `در خانه ${num(c.box)}؛ ${num(c.reviews)} بار مرور، ${num(c.lapses)} بار فراموشی.`}</p>` : ''}
     <div class="btn-row"><button type="button" class="btn btn-primary" id="f-save">${c ? 'ذخیره تغییرات' : 'افزودن به جعبه'}</button></div>
     ${c ? `<div class="btn-row" style="margin-top:10px">
       <button type="button" class="btn btn-ghost btn-small" id="f-restart">برگرداندن به خانه ۱</button>
-      ${ro ? (overridden ? `<button type="button" class="btn btn-ghost btn-small" id="f-orig">بازگرداندن معنی اصلی</button>` : '') : `<button type="button" class="btn btn-danger btn-small" id="f-del">حذف کارت</button>`}</div>` : ''}
+      ${ro ? (overridden ? `<button type="button" class="btn btn-ghost btn-small" id="f-orig">بازگرداندن معنی اصلی</button>` : '') : `<button type="button" class="btn btn-danger btn-small" id="f-del">حذف لغت</button>`}</div>` : ''}
   `);
-  const input = sheet.querySelector('#f-term');
-  const suggBox = sheet.querySelector('#f-sugg');
-  const status = sheet.querySelector('#f-status');
-  const check = sheet.querySelector('#f-check');
-  let D = DICT[lang] || null;
-  let acceptUnknown = false, checkedTerm = null;
+  const input = sheet.querySelector('#f-term'), faIn = sheet.querySelector('#f-fa'), noteIn = sheet.querySelector('#f-note');
+  const pick = sheet.querySelector('#f-pick'), status = sheet.querySelector('#f-status'), check = sheet.querySelector('#f-check');
+  let D = DICT[lang] || null, autoFa = false, autoNote = false, checkedTerm = null;
+  faIn.addEventListener('input', () => { autoFa = false; });
+  noteIn.addEventListener('input', () => { autoNote = false; });
 
   const setStatus = (cls, text) => { status.className = 'fstatus' + (cls ? ' ' + cls : ''); status.textContent = text; };
   function update() {
-    if (ro) { suggBox.innerHTML = ''; setStatus('', 'خود لغت ثابت است؛ معنی و یادداشت را می‌توانید تغییر دهید.'); return; }
+    if (ro) { pick.innerHTML = ''; setStatus('', 'خود لغت ثابت است؛ معنی و یادداشت را می‌توانید تغییر دهید.'); return; }
     const term = input.value;
-    if (term !== checkedTerm) { acceptUnknown = false; checkedTerm = null; check.classList.add('hidden'); }
-    if (hasPersian(term)) { suggBox.innerHTML = ''; setStatus('warn', `این بخش برای کلمه ${L.name} است؛ صفحه‌کلید را عوض کنید.`); return; }
-    if (!D) { suggBox.innerHTML = ''; setStatus('', term.trim() ? 'دیکشنری هنوز بارگذاری نشده.' : ''); return; }
-    const tok = currentToken(input);
-    const list = tok.text ? suggest(D, tok.text, 6) : [];
-    const typoMode = tok.text && !D.exact.has(tok.text.toLowerCase());
-    suggBox.innerHTML = list.map((w, i) => `<button type="button" data-w="${esc(w)}" class="${typoMode && i === 0 ? 'fix' : ''}">${esc(matchCase(tok.text, w))}</button>`).join('');
-    suggBox.querySelectorAll('button').forEach(b => {
+    if (term !== checkedTerm) { checkedTerm = null; check.classList.add('hidden'); }
+    if (hasPersian(term)) { pick.innerHTML = ''; setStatus('warn', `این بخش برای کلمه ${L.name} است؛ صفحه‌کلید را عوض کنید.`); return; }
+    if (!D) { pick.innerHTML = ''; setStatus('', term.trim() ? 'دیکشنری هنوز بارگذاری نشده.' : ''); return; }
+    const q = sortKey(term), tok = currentToken(input);
+    const vh = q ? vocabMatches(lang, q, 4) : [];
+    const exact = vh.find(h => h.nb === q && normTerm(h.term) === normTerm(term));
+    const vset = new Set(vh.map(h => h.nb));
+    let dh = tok.text ? suggest(D, tok.text, 6) : [];
+    dh = dh.filter(w => !vset.has(fold(w))).slice(0, Math.max(2, 6 - vh.length));
+    const typo = tok.text && !D.exact.has(tok.text.toLowerCase()) && !vh.length;
+    // a dictionary word that is also a level word is offered with its meaning; suggestion order is kept
+    const vm = vocabByWord(lang) || new Map();
+    const singleWord = !/\s/.test(term.trim());
+    const rows = vh.map(h => ({ h }));
+    for (const w of dh) {
+      const e = singleWord ? vm.get(fold(w)) : null;
+      if (e) { if (!rows.some(r => r.h === e)) rows.push({ h: e }); } else rows.push({ w });
+    }
+    if (typo && rows.length) rows[0].fix = true;
+    const showList = !(exact && document.activeElement !== input);
+    pick.innerHTML = !showList ? '' : rows.map((r, i) => r.h
+      ? `<button type="button" class="pick-row ${r.h === exact ? 'sel' : ''} ${r.fix ? 'fix' : ''}" data-r="${i}"><span class="lat" lang="${lang}">${esc(r.h.term)}</span><span class="pf">${esc(r.h.fa)}</span><span class="pl">${r.h.lv}</span></button>`
+      : `<button type="button" class="pick-row ${r.fix ? 'fix' : ''}" data-r="${i}" data-w="${esc(r.w)}"><span class="lat" lang="${lang}">${esc(matchCase(tok.text, r.w))}</span><span class="pf">${r.fix ? 'اصلاح املا؛ ' : ''}از دیکشنری؛ معنی را خودتان بنویسید</span></button>`).join('');
+    pick.querySelectorAll('.pick-row').forEach(b => {
       b.addEventListener('pointerdown', e => e.preventDefault());
       b.addEventListener('click', () => {
-        const t = currentToken(input);
-        replaceRange(input, t.start, t.end, matchCase(t.text, b.dataset.w));
+        const r = rows[+b.dataset.r];
+        if (r.h) {
+          const h = r.h;
+          input.value = h.term;
+          if (!faIn.value.trim() || autoFa) { faIn.value = h.fa; autoFa = true; }
+          if (!noteIn.value.trim() || autoNote) { noteIn.value = h.note || ''; autoNote = true; }
+          input.blur();
+        } else {
+          const t = currentToken(input);
+          replaceRange(input, t.start, t.end, matchCase(t.text, b.dataset.w));
+          if (autoFa) { faIn.value = ''; autoFa = false; }
+        }
         update();
+        if (!faIn.value.trim()) faIn.focus();
       });
     });
-    // status: duplicates, then spelling
-    const dup = term.trim() && state.cards.find(x => x.id !== (c && c.id) && normTerm(x.term) === normTerm(term));
-    if (dup) { setStatus('warn', `این کلمه قبلاً در جعبه هست: «${dup.fa}»`); return; }
-    if (!term.trim()) { setStatus('', ''); return; }
+    if (!term.trim()) { setStatus('', `لغت را تایپ کنید و از فهرست انتخاب کنید.`); return; }
+    const dup = state.cards.find(x => x.id !== (c && c.id) && normTerm(x.term) === normTerm(term));
+    if (dup) { setStatus('warn', `این لغت همین حالا در جعبه ${here} هست: «${dup.fa}»`); return; }
+    if (exact) { setStatus('ok', exact.lv === level ? '' : `✓ این لغت در فهرست ${exact.lv} هست؛ معنی پیشنهادی را می‌توانید تغییر دهید.`); return; }
     const typingNow = document.activeElement === input && tok.end === term.length;
     const unknown = unknownTokens(D, term).filter(w => !(typingNow && w === tok.text));
     if (unknown.length) setStatus('warn', `در دیکشنری نیست: ${unknown.join('، ')}`);
-    else if (!typingNow || D.exact.has(tok.text.toLowerCase())) setStatus('ok', '✓ املا با دیکشنری می‌خواند');
+    else if (!typingNow || D.exact.has(tok.text.toLowerCase())) setStatus('ok', '✓ در دیکشنری هست؛ معنی فارسی را بنویسید.');
     else setStatus('', '');
   }
   const upd = debounce(update, 70);
   input.addEventListener('input', upd);
   input.addEventListener('click', upd);
+  input.addEventListener('focus', upd);
   input.addEventListener('keyup', e => { if (e.key.startsWith('Arrow')) upd(); });
   input.addEventListener('blur', () => setTimeout(update, 120));
-  loadDict(lang).then(d => { D = d; if (!d) setStatus('', 'دیکشنری در دسترس نیست؛ یک بار با اینترنت باز کنید.'); update(); });
+  loadDict(lang).then(d => { D = d; if (!d && !ro) setStatus('', 'دیکشنری در دسترس نیست؛ یک بار با اینترنت باز کنید.'); update(); });
 
   sheet.querySelectorAll('[data-ch]').forEach(b => {
     b.addEventListener('pointerdown', e => e.preventDefault());
@@ -1777,52 +1521,50 @@ function editCard(id) {
 
   sheet.querySelector('#f-save').onclick = () => {
     const term = input.value.trim().replace(/\s+/g, ' ');
-    const faV = sheet.querySelector('#f-fa').value.trim();
-    const note = sheet.querySelector('#f-note').value.trim();
+    const faV = faIn.value.trim(), note = noteIn.value.trim();
     if (ro) {
       if (!faV) { toast('معنی فارسی لازم است.'); return; }
       c.fa = faV; c.note = note; save(); closeSheet(); render(); toast('تغییرات ذخیره شد.');
       return;
     }
-    if (!term || !faV) { toast(`هر دو بخش ${L.name} و فارسی لازم است.`); return; }
+    if (!term) { toast('لغت را از دیکشنری انتخاب کنید.'); input.focus(); return; }
+    if (!faV) { toast('معنی فارسی را بنویسید.'); faIn.focus(); return; }
     if (hasPersian(term)) { toast(`در بخش ${L.name} حروف فارسی تایپ شده.`); return; }
     const dup = state.cards.find(x => x.id !== (c && c.id) && normTerm(x.term) === normTerm(term));
-    if (dup && !confirm(`«${dup.term}» قبلاً با معنی «${dup.fa}» وجود دارد. باز هم ذخیره شود؟`)) return;
-    const unknown = unknownTokens(D, term);
-    if (unknown.length && !acceptUnknown) {
-      const fixes = unknown.map(w => [w, suggest(D, w, 1)[0]]);
-      check.innerHTML = `<p>این ${unknown.length > 1 ? 'کلمه‌ها' : 'کلمه'} در دیکشنری ${L.name} نیست: ${fixes.map(([w, s]) => `<b class="lat">${esc(w)}</b>${s ? ` (شاید <b class="lat">${esc(s)}</b>)` : ''}`).join('، ')}</p>
-        <div class="btn-row">${fixes.some(f => f[1]) ? `<button type="button" class="btn btn-ghost btn-small" id="f-fix">اصلاح کن</button>` : ''}
-        <button type="button" class="btn btn-ghost btn-small" id="f-keep">همین‌طور ذخیره کن</button></div>`;
-      checkedTerm = input.value;
-      check.classList.remove('hidden');
-      check.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      check.querySelector('#f-fix')?.addEventListener('click', () => {
-        let v = input.value;
-        for (const [w, s] of fixes) if (s) v = v.replace(new RegExp(`(^|[^A-Za-zÀ-ÖØ-öø-ÿ])${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=$|[^A-Za-zÀ-ÖØ-öø-ÿ])`), (m, p) => p + matchCase(w, s));
-        input.value = v; update();
-      });
-      check.querySelector('#f-keep').addEventListener('click', () => { acceptUnknown = true; sheet.querySelector('#f-save').click(); });
-      return;
+    if (dup) { toast(`«${dup.term}» همین حالا در جعبه ${here} هست.`); return; }
+    if (!isVocabTerm(lang, term)) {
+      if (!D) { toast('دیکشنری بارگذاری نشده؛ یک بار با اینترنت باز کنید.'); return; }
+      const unknown = unknownTokens(D, term);
+      if (unknown.length) {
+        const fixes = unknown.map(w => [w, suggest(D, w, 1)[0]]);
+        check.innerHTML = `<p>لغت باید از دیکشنری ${L.name} باشد. این ${unknown.length > 1 ? 'کلمه‌ها' : 'کلمه'} در دیکشنری نیست: ${fixes.map(([w, sg]) => `<b class="lat">${esc(w)}</b>${sg ? ` (شاید <b class="lat">${esc(sg)}</b>)` : ''}`).join('، ')}</p>
+          ${fixes.some(f => f[1]) ? `<div class="btn-row"><button type="button" class="btn btn-ghost btn-small" id="f-fix">اصلاح کن</button></div>` : ''}`;
+        checkedTerm = input.value;
+        check.classList.remove('hidden');
+        check.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        check.querySelector('#f-fix')?.addEventListener('click', () => {
+          let v = input.value;
+          for (const [w, sg] of fixes) if (sg) v = v.replace(new RegExp(`(^|[^A-Za-zÀ-ÖØ-öø-ÿ])${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=$|[^A-Za-zÀ-ÖØ-öø-ÿ])`), (m, p1) => p1 + matchCase(w, sg));
+          input.value = v; update();
+        });
+        return;
+      }
     }
     if (c) { c.term = term; c.fa = faV; c.note = note; toast('تغییرات ذخیره شد.'); }
     else {
-      const maxOrder = state.cards.reduce((m, x) => Math.max(m, x.order || 0), 0);
-      state.cards.push(makeCard(term, faV, note, '', maxOrder + 1));
-      toast(`«${term}» به جعبه اضافه شد.`);
+      state.cards.push({ ...makeCard(term, faV, note, '', -1), id: 'c:' + uid(), custom: true });
+      toast(`«${term}» به جعبه ${here} اضافه شد.`);
     }
     save(); closeSheet(); render();
   };
   sheet.querySelector('#f-orig')?.addEventListener('click', () => {
     c.fa = c.base[0]; c.note = c.base[1]; save(); closeSheet(); render(); toast('معنی اصلی برگشت.');
   });
-  if (c && !ro) {
-    sheet.querySelector('#f-del').onclick = () => {
-      if (!confirm(`کارت «${c.term}» حذف شود؟`)) return;
-      state.cards = state.cards.filter(x => x.id !== c.id);
-      save(); closeSheet(); render(); toast('کارت حذف شد.');
-    };
-  }
+  sheet.querySelector('#f-del')?.addEventListener('click', () => {
+    if (!confirm(`لغت «${c.term}» حذف شود؟`)) return;
+    state.cards = state.cards.filter(x => x.id !== c.id);
+    save(); closeSheet(); render(); toast('لغت حذف شد.');
+  });
   if (c) sheet.querySelector('#f-restart').onclick = () => { c.box = 1; c.due = today(); save(); closeSheet(); render(); toast('کارت به خانه ۱ برگشت.'); };
 }
 $('#add-btn').addEventListener('click', () => editCard(null));
@@ -1875,7 +1617,7 @@ $('#bulk-btn').addEventListener('click', () => {
     for (const it of items) {
       if (existing.has(normTerm(it.term))) { skipped++; continue; }
       existing.add(normTerm(it.term));
-      state.cards.push(makeCard(it.term, it.fa, it.note, '', ++maxOrder)); added++;
+      state.cards.push({ ...makeCard(it.term, it.fa, it.note, '', -1), id: 'c:' + uid(), custom: true }); added++;
     }
     save(); closeSheet(); render();
     toast(`${num(added)} کارت اضافه شد${skipped ? `، ${num(skipped)} تکراری رد شد` : ''}.`);
@@ -1887,7 +1629,7 @@ const NP_STEPS = [3, 5, 8, 10, 15, 20, 30, 50];
 function renderSettings() {
   const L = LANGS[lang];
   $('#settings-sub').textContent = `جعبه ${deckTitle().replace(':', '،')}`;
-  $('#reset-all').textContent = isLevelDeck() ? 'پاک کردن پیشرفت و ویرایش‌ها' : 'بازگشت به کارت‌های اولیه';
+  $('#reset-all').textContent = 'پاک کردن پیشرفت و ویرایش‌ها';
   $('#dir-fwd').textContent = `${L.name} ← فارسی`;
   $('#dir-rev').textContent = `فارسی ← ${L.name}`;
   document.querySelectorAll('#dir-seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.dir === state.settings.direction));
@@ -1946,12 +1688,13 @@ $('#import-file').addEventListener('change', async e => {
       const n = Object.values(imported.decks).reduce((s, d) => s + (d.kind === 'level' ? Object.keys(d.prog).length : d.cards.length), 0);
       if (!confirm(`این پشتیبان ${num(Object.keys(imported.decks).length)} جعبه با ${num(n)} کارت ثبت‌شده دارد${data.user ? ` (از ${data.user})` : ''} و جای همه جعبه‌های ${USERS[user].name} را می‌گیرد. ادامه می‌دهید؟`)) return;
       profile.decks = imported.decks;
-      for (const l of Object.keys(LANGS)) getDeck(l, 'mine');
+      migrateAllMine();
     } else {
       const s = data.state || data; // version 1 backup: Spanish only
       if (!s || !Array.isArray(s.cards)) throw new Error('invalid');
       if (!confirm(`این پشتیبان نسخه قدیمی با ${num(s.cards.length)} کارت اسپانیایی است و جای جعبه اسپانیایی را می‌گیرد. ادامه می‌دهید؟`)) return;
       profile.decks[dkey('es', 'mine')] = normalizeDeck(s, 'es');
+      migrateAllMine();
     }
     state = null; level = null; deckKey = null;   // reopen from the restored data
     save(); showScreen('levels'); toast('پشتیبان بازگردانی شد.');
@@ -1965,9 +1708,10 @@ $('#reset-progress').addEventListener('click', () => {
 });
 $('#reset-all').addEventListener('click', () => {
   const lvl = isLevelDeck();
-  if (!confirm(lvl ? `پیشرفت و معنی‌های ویرایش‌شده «${deckTitle()}» پاک می‌شود. ادامه می‌دهید؟` : `همه کارت‌ها و پیشرفت «${deckTitle()}» پاک می‌شود و کارت‌های اولیه برمی‌گردند. اگر پشتیبان ندارید، اول پشتیبان بگیرید. ادامه می‌دهید؟`)) return;
-  if (lvl) { profile.decks[deckKey] = freshLevelDeck(); state = materialize(lang, level, profile.decks[deckKey]); }
-  else { profile.decks[deckKey] = freshDeck(lang); state = profile.decks[deckKey]; }
+  if (!confirm(`پیشرفت و معنی‌های ویرایش‌شده «${deckTitle()}» پاک می‌شود. لغت‌هایی که خودتان اضافه کرده‌اید می‌مانند. ادامه می‌دهید؟`)) return;
+  const fresh = freshLevelDeck();
+  fresh.custom = state.cards.filter(c => c.custom).map(c => ({ ...c, box: 0, due: null, reviews: 0, lapses: 0, last: null }));
+  profile.decks[deckKey] = fresh; state = materialize(lang, level, fresh);
   save(); render(); toast('این جعبه به حالت اولیه برگشت.');
 });
 
