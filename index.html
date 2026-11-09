@@ -116,6 +116,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .lang-card .due b{display:block;font-size:40px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
 .lang-card .due span{font-size:13px;color:var(--muted)}
 .lang-card .due.zero b{color:var(--muted)}
+.lang-card .due.start span{display:inline-block;font-size:13px;font-weight:700;color:var(--accent-strong);padding:5px 12px;border-radius:99px;box-shadow:inset 0 0 0 1.5px var(--accent)}
 .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;align-items:end;height:56px;margin-top:18px;padding:0 4px;border-bottom:4px solid var(--line)}
 .mini i{display:block;border-radius:4px 4px 0 0;min-height:3px;transition:height .5s cubic-bezier(.2,.8,.2,1)}
 .lang-card .foot{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);margin-top:10px}
@@ -319,6 +320,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .method ol{margin:10px 0 2px;padding-right:20px}
 .method li{margin-bottom:6px;color:var(--muted)}
 .method li b{color:var(--ink)}
+.lang-card.col .native{color:var(--accent-strong)}
 .lvl.col .code{font-size:15px;background:color-mix(in srgb, var(--accent) 16%, var(--surface));color:var(--accent-strong)}
 .face.col{padding:44px 20px 24px}
 .face.back.col{justify-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -343,6 +345,16 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .col-input .btn{flex:none;width:auto;padding:0 20px}
 .col-aux{margin-top:8px}
 .answers .btn.suggest{box-shadow:0 0 0 3px color-mix(in srgb, currentColor 35%, transparent)}
+
+.keys{display:flex;flex-wrap:wrap;gap:6px;direction:ltr}
+.keys .key,.ex-prev .exw{font-family:var(--lat);font-size:17px;padding:5px 12px;border-radius:99px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line)}
+.keys .key.on,.ex-prev .exw.on{background:var(--accent);color:var(--on-accent);box-shadow:none}
+.ex-prev{margin-top:10px;line-height:2.4;font-size:17px;text-align:left}
+.ex-prev .exw{padding:2px 6px;font-size:16px;box-shadow:none;background:none;border-radius:6px}
+.ex-prev .exw.on{background:var(--accent)}
+.muted{color:var(--muted);font-weight:400}
+.small{font-size:13px}
+.ex-prev .warn{margin-top:4px;line-height:1.7}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 </style>
 </head>
@@ -394,7 +406,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>زبان‌ها
     </button>
     <header class="top">
-      <div><h1 id="h-levels"></h1><p><span class="lat" id="levels-native"></span>، انتخاب سطح</p></div>
+      <div><h1 id="h-levels"></h1><p><span class="lat" id="levels-native"></span>، <span id="levels-pick">انتخاب سطح</span></p></div>
     </header>
     <div id="level-list"></div>
     <p class="sources" id="sources"></p>
@@ -466,12 +478,19 @@ button{cursor:pointer;border:0;background:none;padding:0}
           <button type="button" data-dir="mixed">ترکیبی</button>
         </div></div>
         <div class="row">
-          <div class="lbl">کارت جدید در روز<small>تعداد کارت‌هایی که هر روز وارد خانه ۱ می‌شوند</small></div>
+          <div class="lbl" id="np-label">کارت جدید در روز<small>تعداد کارت‌هایی که هر روز وارد خانه ۱ هر جعبه می‌شوند</small></div>
           <div class="stepper"><button type="button" id="np-minus" aria-label="کمتر">−</button><output id="np-val">۱۰</output><button type="button" id="np-plus" aria-label="بیشتر">+</button></div>
         </div>
         <div class="row">
-          <div class="lbl">تلفظ خودکار<small>کلمه هنگام نمایش خوانده شود</small></div>
+          <div class="lbl" id="speak-label">تلفظ خودکار<small id="speak-help">کلمه هنگام نمایش خوانده شود</small></div>
           <label class="switch"><input type="checkbox" id="auto-speak" aria-label="تلفظ خودکار"><span></span></label>
+        </div>
+        <div class="row hidden" id="ans-row">
+          <div class="lbl">شیوه جواب دادن<small>تایپ کردن جواب به خاطر سپاری را محکم‌تر می‌کند</small>
+            <div class="seg" id="ans-seg" role="group" aria-label="شیوه جواب دادن" style="margin-top:8px">
+              <button type="button" data-ans="type">تایپ و بررسی</button>
+              <button type="button" data-ans="reveal">فقط نمایش جواب</button>
+            </div></div>
         </div>
       </div>
 
@@ -506,7 +525,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
       </div>
 
       <div class="group">
-        <h3>شروع دوباره همین جعبه</h3>
+        <h3 id="reset-title">شروع دوباره همین جعبه</h3>
         <div class="btn-row" style="padding:10px 0 14px">
           <button class="btn btn-danger btn-small" id="reset-progress" type="button">صفر کردن پیشرفت</button>
           <button class="btn btn-danger btn-small" id="reset-all" type="button">بازگشت به کارت‌های اولیه</button>
@@ -543,7 +562,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 (() => {
 'use strict';
 
-const APP_VERSION = '5.0.0';
+const APP_VERSION = '5.1.0';
 const SESSION_KEY = 'leitner:v2:session';
 const PROFILE_KEY = u => `leitner:v2:profile:${u}`;
 const LEGACY_KEY = 'leitner-es-fa:v1';
@@ -735,6 +754,17 @@ const dkey = (l, lv) => `${l}:${lv}`;
 const LEVEL_ORDER = { en: ['A1', 'A2', 'B1', 'B2', 'C1', 'AWL'], es: ['A1', 'A2', 'B1', 'B2', 'C1'] };
 const lowerLevels = (l, lv) => { const i = LEVEL_ORDER[l].indexOf(lv); return i > 0 ? LEVEL_ORDER[l].slice(0, i) : []; };
 const COL_IDS = new Set(['MD', 'TH', 'AN', 'AD', 'PR', 'AC']);
+const sectionOf = lv => COL_IDS.has(lv) ? 'col' : 'words';
+const SECTION_DEFAULTS = {
+  words: () => ({ direction: 'fwd', newPerDay: 10, autoSpeak: false }),
+  col: () => ({ direction: 'rev', newPerDay: 8, autoSpeak: true, answerMode: 'type' })
+};
+function secSettings(l, sec) {
+  profile.settings = profile.settings || {};
+  const k = `${l}:${sec}`;
+  if (!profile.settings[k]) profile.settings[k] = SECTION_DEFAULTS[sec]();
+  return profile.settings[k];
+}
 const bareTerm = t => String(t || '').replace(/^(el\/la|el|la|los|las)\s+/i, '');
 const sortKey = t => normTerm(bareTerm(t));
 const levelInfo = (l, lv) => LEVELS[l].find(x => x.id === lv);
@@ -743,7 +773,7 @@ const VOCAB = {};
 function loadVocab(l) {
   if (VOCAB[l]) return Promise.resolve(VOCAB[l]);
   if (VOCAB['p:' + l]) return VOCAB['p:' + l];
-  VOCAB['p:' + l] = fetch(`./vocab/${l}.json`)
+  VOCAB['p:' + l] = fetch(`./vocab/${l}.json?v=${APP_VERSION}`)
     .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(j => (VOCAB[l] = j))
     .catch(() => { delete VOCAB['p:' + l]; return null; });
@@ -786,7 +816,7 @@ function normalizeProfile(p) {
       decks[k] = lv === 'mine' ? normalizeDeck(d, l) : normalizeLevelDeck(d);
     }
   }
-  return { version: 3, decks, hintDismissed: !!(p && p.hintDismissed), savedAt: (p && p.savedAt) || null };
+  return { version: 3, decks, settings: (p && p.settings) || {}, hintDismissed: !!(p && p.hintDismissed), savedAt: (p && p.savedAt) || null };
 }
 function loadProfile(u) {
   try {
@@ -797,10 +827,7 @@ function loadProfile(u) {
 }
 function getDeck(l, lv) {
   const k = dkey(l, lv);
-  if (!profile.decks[k]) {
-    profile.decks[k] = freshLevelDeck();
-    if (COL_IDS.has(lv)) Object.assign(profile.decks[k].settings, { direction: 'rev', newPerDay: 8 });   // collocations: produce, not just recognise
-  }
+  if (!profile.decks[k]) profile.decks[k] = freshLevelDeck();
   return profile.decks[k];
 }
 /* build full cards for a level deck: text from the vocabulary file, progress from storage */
@@ -814,14 +841,14 @@ function materialize(l, lv, d) {
     };
   });
   for (const c of d.custom) cards.push({ ...c, custom: true, order: -1 });   // your own words come first among new cards
-  return { kind: 'level', settings: d.settings, days: d.days, newLog: d.newLog, bonus: d.bonus, cards };
+  return { kind: 'level', settings: secSettings(l, sectionOf(lv)), days: d.days, newLog: d.newLog, bonus: d.bonus, cards };
 }
 function syncLevelState() {
   if (!state || state.kind !== 'level' || !deckKey || !profile.decks[deckKey]) return;
   const d = profile.decks[deckKey], prog = {}, custom = [];
   for (const c of state.cards) {
     if (c.custom) {
-      custom.push({ id: c.id, term: c.term, fa: c.fa, note: c.note, box: c.box, due: c.due, reviews: c.reviews, lapses: c.lapses, last: c.last, created: c.created });
+      custom.push({ id: c.id, term: c.term, fa: c.fa, note: c.note, x: c.x, box: c.box, due: c.due, reviews: c.reviews, lapses: c.lapses, last: c.last, created: c.created });
       continue;
     }
     const faChanged = c.fa !== c.base[0], noteChanged = c.note !== c.base[1];
@@ -832,7 +859,7 @@ function syncLevelState() {
       prog[c.id] = e;
     }
   }
-  d.prog = prog; d.custom = custom; d.settings = state.settings; d.days = state.days; d.newLog = state.newLog; d.bonus = state.bonus;
+  d.prog = prog; d.custom = custom; d.days = state.days; d.newLog = state.newLog; d.bonus = state.bonus;
 }
 function save() {
   if (!user || !profile) return;
@@ -905,7 +932,9 @@ function summarize(l, lv) {
   const total = (LEVEL_COUNTS[l][lv] || 0) + d.custom.length;
   counts[0] = Math.max(0, total - touched);
   const started = touched > 0 || d.custom.length > 0 || Object.keys(d.days).length > 0;
-  return { total, counts, today: due + Math.min(newAllowanceToday(d), counts[0]), streak: streak(d), started };
+  const st = secSettings(l, sectionOf(lv));
+  const allowance = Math.max(0, st.newPerDay + (d.bonus[t] || 0) - (d.newLog[t] || 0));
+  return { total, counts, today: due + Math.min(allowance, counts[0]), streak: streak(d), started };
 }
 
 /* ---------- scheduling ---------- */
@@ -1039,30 +1068,40 @@ function miniBars(counts) {
   const max = Math.max(5, ...counts.slice(1, 6));
   return [1, 2, 3, 4, 5].map(b => `<i style="background:${BOX_COLORS[b]};height:${counts[b] ? Math.max(8, Math.round(counts[b] / max * 100)) : 4}%"></i>`).join('');
 }
+let section = 'words';
+const SECTION_CARDS = [
+  { l: 'es', sec: 'words' },
+  { l: 'en', sec: 'words' },
+  { l: 'en', sec: 'col' }
+];
+const secLevels = (l, sec) => LEVELS[l].filter(x => sectionOf(x.id) === sec);
 function renderLangs() {
   $('#hello-name').textContent = USERS[user].name;
   if (profile.hintDismissed) $('#install-hint').classList.add('hidden');
-  $('#lang-list').innerHTML = Object.entries(LANGS).map(([l, L]) => {
-    const counts = Array(7).fill(0); let todayN = 0, total = 0, best = 0;
-    for (const lv of LEVELS[l]) {
+  $('#lang-list').innerHTML = SECTION_CARDS.map(({ l, sec }) => {
+    const L = LANGS[l], col = sec === 'col', lvs = secLevels(l, sec);
+    const counts = Array(7).fill(0); let todayN = 0, total = 0, best = 0, anyStarted = false;
+    for (const lv of lvs) {
       const sm = summarize(l, lv.id);
       sm.counts.forEach((n, i) => counts[i] += n);
-      if (sm.started) todayN += sm.today;   // levels not yet opened don't count toward today
+      if (sm.started) { todayN += sm.today; anyStarted = true; }   // levels not yet opened don't count toward today
       total += sm.total; best = Math.max(best, sm.streak);
     }
-    return `<button type="button" class="lang-card" data-lang="${l}" aria-label="${L.name}، ${num(todayN)} کارت برای امروز">
+    const title = col ? 'Collocations' : L.native;
+    const sub = col ? `کالوکیشن‌های انگلیسی، ${num(lvs.length)} بخش` : `لغات ${L.name} به فارسی، ${num(lvs.length)} سطح`;
+    return `<button type="button" class="lang-card ${col ? 'col' : ''}" data-lang="${l}" data-sec="${sec}" aria-label="${col ? 'کالوکیشن‌ها' : L.name}، ${num(todayN)} کارت برای امروز">
       <div class="head">
-        <div><span class="native" lang="${l}">${L.native}</span><span class="faname">${L.name} به فارسی، ${num(LEVELS[l].filter(x => !x.group).length)} سطح${LEVELS[l].some(x => x.group) ? ` و ${num(LEVELS[l].filter(x => x.group).length)} بخش کالوکیشن` : ''}</span></div>
-        <div class="due ${todayN ? '' : 'zero'}"><b>${num(todayN)}</b><span>${todayN ? 'برای امروز' : 'امروز تمام'}</span></div>
+        <div><span class="native" lang="en">${title}</span><span class="faname">${sub}</span></div>
+        ${anyStarted ? `<div class="due ${todayN ? '' : 'zero'}"><b>${num(todayN)}</b><span>${todayN ? 'برای امروز' : 'امروز تمام'}</span></div>` : `<div class="due start"><span>شروع</span></div>`}
       </div>
       <div class="mini" aria-hidden="true">${miniBars(counts)}</div>
       <div class="foot"><span><b>${num(total)}</b> کارت</span><span>آموخته: <b>${num(counts[MASTERED])}</b></span><span>پشت سر هم: <b>${num(best)}</b> روز</span></div>
     </button>`;
   }).join('');
-  $('#lang-list').querySelectorAll('.lang-card').forEach(b => b.onclick = () => openLang(b.dataset.lang));
+  $('#lang-list').querySelectorAll('.lang-card').forEach(b => b.onclick = () => openLang(b.dataset.lang, b.dataset.sec));
 }
-function openLang(l) {
-  lang = l;
+function openLang(l, sec = 'words') {
+  lang = l; section = sec;
   loadVocab(l).then(v => { if (v && profile && migrateMine(l)) { save(); render(); } });
   loadDict(l);
   showScreen('levels');
@@ -1070,11 +1109,11 @@ function openLang(l) {
 
 /* ---------- levels page ---------- */
 const SOURCES = {
+  col: 'کالوکیشن‌ها از پرکاربردترین ترکیب‌های انگلیسی عمومی و آکادمیک آیلتس، با تمرکز بر ترکیب‌هایی که فارسی‌زبان‌ها اغلب اشتباه می‌گویند، انتخاب شده‌اند. جمله‌های مثال، ترجمه‌ها و توضیح‌ها برای این برنامه نوشته شده‌اند. کالوکیشن‌های خودتان را هم می‌توانید به هر بخش اضافه کنید.',
   en: 'منابع: فهرست‌های Oxford 3000 و Oxford 5000 (سطح‌بندی CEFR، انتشارات دانشگاه آکسفورد) و Academic Word List (Averil Coxhead, 2000). هم‌ترازی سطح‌ها با نمره آیلتس طبق جدول رسمی آیلتس است. معنی‌های فارسی برای این برنامه نوشته شده‌اند.',
   es: 'منبع: ELELex، فهرست سطح‌بندی‌شده واژگان اسپانیایی برای خارجی‌زبانان از پروژه CEFRLex، دانشگاه لووَن (مجوز CC BY-NC-SA 4.0). سطح هر لغت اولین سطحی است که در کتاب‌های درسی آن سطح به‌طور پایدار ظاهر می‌شود؛ لغات نادر و منطقه‌ای حذف شده‌اند. معنی‌های فارسی برای این برنامه نوشته شده‌اند.'
 };
-const COL_HEADER = `<h2 class="sec">کالوکیشن‌ها</h2>
-<details class="method"><summary>این بخش چطور به خاطر سپردن را بهتر می‌کند؟</summary>
+const COL_HEADER = `<details class="method"><summary>این بخش چطور به خاطر سپردن را بهتر می‌کند؟</summary>
 <ol>
 <li><b>تولید، نه فقط شناختن.</b> روی کارت معنی فارسی و جمله‌ای با جای خالی می‌بینید و کلمه را خودتان می‌نویسید. به یاد آوردنِ فعال (اثر آزمون و اثر تولید) کالوکیشن را بسیار محکم‌تر از دیدن و تشخیص دادن در حافظه نگه می‌دارد.</li>
 <li><b>بازخورد دقیق.</b> جواب تایپ‌شده با جواب درست مقایسه می‌شود و اگر غلط باشد، دقیقاً می‌بینید کجا.</li>
@@ -1084,11 +1123,12 @@ const COL_HEADER = `<h2 class="sec">کالوکیشن‌ها</h2>
 <li><b>جدا نگه داشتن رقیب‌ها.</b> کارت‌های جدید make پیش از do معرفی می‌شوند و در مرور، کارت‌های یک فعل کنار هم و جدا از رقیبش می‌آیند، چون یادگیری هم‌زمان ترکیب‌های شبیه تداخل ایجاد می‌کند. جمله کامل هم با صدا پخش می‌شود تا ترکیب یک‌جا در ذهن بنشیند.</li>
 </ol></details>`;
 function renderLevels() {
-  const L = LANGS[lang];
-  $('#h-levels').textContent = L.name;
-  $('#levels-native').textContent = L.native;
-  $('#level-list').innerHTML = LEVELS[lang].map((lv, i, arr) => {
-    const header = lv.group === 'col' && (!arr[i - 1] || arr[i - 1].group !== 'col') ? COL_HEADER : '';
+  const L = LANGS[lang], col = section === 'col';
+  $('#h-levels').textContent = col ? 'کالوکیشن‌ها' : `لغات ${L.name}`;
+  $('#levels-native').textContent = col ? 'English collocations' : L.native;
+  $('#levels-pick').textContent = col ? 'انتخاب بخش' : 'انتخاب سطح';
+  $('#level-list').innerHTML = (col ? COL_HEADER : '') + secLevels(lang, section).map(lv => {
+    const header = '';
     const sm = summarize(lang, lv.id);
     const started = sm.total - sm.counts[0];
     const pct = sm.total ? Math.round(started / sm.total * 100) : 0;
@@ -1102,7 +1142,7 @@ function renderLevels() {
     </button>`;
   }).join('');
   $('#level-list').querySelectorAll('.lvl').forEach(b => b.onclick = () => openDeck(b.dataset.lv));
-  $('#sources').textContent = SOURCES[lang];
+  $('#sources').textContent = col ? SOURCES.col : SOURCES[lang];
 }
 async function openDeck(lv) {
   let v = VOCAB[lang];
@@ -1110,6 +1150,14 @@ async function openDeck(lv) {
   if (!v) { toast('بار اول برای دریافت لغات این سطح اینترنت لازم است.'); return; }
   if (migrateMine(lang)) save();
   state = materialize(lang, lv, getDeck(lang, lv));
+  if (!v[lv]) {   // an older copy of the file without this section: fetch it fresh
+    delete VOCAB[lang]; delete VOCAB['p:' + lang]; VIDX[lang] = null; VMAP[lang] = null;
+    v = await loadVocab(lang);
+    if (!v || !v[lv]) { toast('لغات این بخش دریافت نشد؛ اینترنت را بررسی کنید و دوباره امتحان کنید.'); return; }
+    state = materialize(lang, lv, getDeck(lang, lv));
+  }
+  section = sectionOf(lv);
+  document.querySelectorAll('[data-back]').forEach(b => { b.lastChild.textContent = section === 'col' ? 'بخش‌ها' : 'سطح‌ها'; });
   scope = 'here';
   level = lv; deckKey = dkey(lang, lv);
   filter = 'all'; $('#search').value = '';
@@ -1121,7 +1169,7 @@ const isLevelDeck = () => !!state && state.kind === 'level';
 const isCollocDeck = () => isLevelDeck() && COL_IDS.has(level);
 function deckTitle() {
   const L = LANGS[lang], lv = levelInfo(lang, level);
-  return `${L.name} ${lv.code}`;
+  return sectionOf(level) === 'col' ? `کالوکیشن: ${lv.name}` : `${L.name} ${lv.code}`;
 }
 
 (function installHint() {
@@ -1323,7 +1371,7 @@ function renderReview() {
     </div>
     <div id="rv-actions"></div>`;
   const actions = $('#rv-actions');
-  if (!S.flipped && col && !frontIsTerm) {
+  if (!S.flipped && col && !frontIsTerm && (state.settings.answerMode || 'type') === 'type') {
     actions.innerHTML = `<div class="col-input">
         <input id="col-ans" class="lat" lang="en" dir="ltr" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="کلمه جاافتاده" aria-label="کلمه جاافتاده">
         <button class="btn btn-primary btn-small" id="col-check" type="button">بررسی</button>
@@ -1362,7 +1410,7 @@ function flip() {
       ? `<div class="col-res ok">✓ درست نوشتید: <b class="lat">${esc(S.typed.val)}</b></div>`
       : `<div class="col-res bad">نوشتید <s class="lat">${esc(S.typed.val)}</s>؛ درستش <b class="lat">${esc(right)}</b> است</div>`;
   }
-  if (state.settings.autoSpeak || c.x) speak(c.x ? colPlain(c.x.ex) : c.term);   // collocations: always hear the whole chunk
+  if (state.settings.autoSpeak) speak(c.x ? colPlain(c.x.ex) : c.term);   // collocations: the whole sentence
   $('#rv-actions').innerHTML = answersHTML(); wireAnswers();
   document.querySelector('.face.back')?.setAttribute('aria-hidden', 'false');
   const suggested = c.x && S.typed ? (S.typed.ok ? '#rv-yes' : '#rv-no') : '#rv-yes';
@@ -1420,7 +1468,9 @@ function renderCards() {
   if (!lower.length) scope = 'here';
   $('#scope-lower').textContent = lower.length === 1 ? `سطح ${lower[0]}` : `سطح‌های ${lower[0]} تا ${lower[lower.length - 1]}`;
   document.querySelectorAll('#scope-seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.scope === scope));
-  document.querySelector('#view-cards .toolbar').classList.toggle('hidden', scope !== 'here' || isCollocDeck());
+  document.querySelector('#view-cards .toolbar').classList.toggle('hidden', scope !== 'here');
+  $('#add-btn').textContent = isCollocDeck() ? 'افزودن کالوکیشن' : 'افزودن لغت';
+  $('#bulk-btn').classList.toggle('hidden', isCollocDeck());
   $('#chips').classList.toggle('hidden', scope !== 'here');
   $('#search').placeholder = `جستجوی کلمه ${L.name} یا فارسی`;
   const q = $('#search').value, qT = normTerm(q), qF = normFa(q);
@@ -1544,6 +1594,7 @@ function vocabByWord(l) {   // bare word -> first (lowest-level) entry
 const isVocabTerm = (l, term) => (vocabIndex(l) || []).some(e => normTerm(e.term) === normTerm(term));
 
 function editCard(id) {
+  if (isCollocDeck()) { const cc = id ? byId(id) : null; if (!cc || cc.custom) return editColloc(cc); }
   const L = LANGS[lang], here = levelInfo(lang, level).code, c = id ? byId(id) : null;
   const ro = !!c && !c.custom;   // level words: the word itself is fixed, meaning and note are editable
   const overridden = ro && (c.fa !== c.base[0] || c.note !== c.base[1]);
@@ -1695,6 +1746,123 @@ function editCard(id) {
   });
   if (c) sheet.querySelector('#f-restart').onclick = () => { c.box = 1; c.due = today(); save(); closeSheet(); render(); toast('کارت به خانه ۱ برگشت.'); };
 }
+
+/* add or edit one of your own collocations */
+const WORD_RX = /[A-Za-zÀ-ÖØ-öø-ÿ'’-]+/g;
+function editColloc(c) {
+  const here = levelInfo(lang, level).name;
+  const x = c ? c.x : null;
+  const sheet = openSheet(`
+    <h2>${c ? 'ویرایش کالوکیشن شما' : `افزودن کالوکیشن به «${esc(here)}»`}</h2>
+    <div class="field">
+      <label for="k-c">کالوکیشن انگلیسی</label>
+      <input id="k-c" class="lat" lang="en" dir="ltr" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="make a decision" value="${x ? esc(colPlain(x.c)) : ''}">
+      <div class="fstatus" id="k-st" aria-live="polite"></div>
+    </div>
+    <div class="field">
+      <label>کدام کلمه را باید به خاطر بسپارید؟ <small class="muted">(همان که در مرور جای خالی می‌شود)</small></label>
+      <div class="keys" id="k-keys"><span class="muted small">اول کالوکیشن را بنویسید.</span></div>
+    </div>
+    <div class="field">
+      <label for="k-fa">معنی فارسی</label>
+      <input id="k-fa" autocomplete="off" placeholder="تصمیم گرفتن" value="${c ? esc(c.fa) : ''}">
+    </div>
+    <div class="field">
+      <label for="k-ex">جمله مثال (پیشنهادی)</label>
+      <textarea id="k-ex" class="lat" lang="en" dir="ltr" placeholder="We need to make a decision by Friday.">${x && x.ex !== x.c ? esc(colPlain(x.ex)) : ''}</textarea>
+      <div class="help">جای خالی را خودکار پیدا می‌کنم؛ اگر کلمه صرف شده باشد (مثلاً made)، روی آن در پیش‌نمایش بزنید.</div>
+      <div class="ex-prev lat" id="k-prev" dir="ltr"></div>
+    </div>
+    <div class="field">
+      <label for="k-exfa">ترجمه جمله (اختیاری)</label>
+      <input id="k-exfa" autocomplete="off" value="${x ? esc(x.exfa || '') : ''}">
+    </div>
+    <div class="field">
+      <label for="k-trap">تله: اشتباه رایج (اختیاری)</label>
+      <input id="k-trap" class="lat" lang="en" dir="ltr" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="do a decision" value="${x ? esc(x.trap || '') : ''}">
+    </div>
+    <div class="field">
+      <label for="k-note">یادداشت یا هم‌خانواده‌ها (اختیاری)</label>
+      <textarea id="k-note" dir="auto" placeholder="reach a decision؛ come to a decision">${c ? esc(c.note || '') : ''}</textarea>
+    </div>
+    <div class="btn-row"><button type="button" class="btn btn-primary" id="k-save">${c ? 'ذخیره تغییرات' : 'افزودن به جعبه'}</button></div>
+    ${c ? `<div class="btn-row" style="margin-top:10px">
+      <button type="button" class="btn btn-ghost btn-small" id="k-restart">برگرداندن به خانه ۱</button>
+      <button type="button" class="btn btn-danger btn-small" id="k-del">حذف کالوکیشن</button></div>` : ''}`);
+  const $k = sel => sheet.querySelector(sel);
+  const cIn = $k('#k-c'), exIn = $k('#k-ex');
+  let D = DICT.en || null;
+  let keyIdx = x ? Math.max(0, (colParts(x.c).b.match(WORD_RX) || []).length) : 0;   // which word of the collocation
+  let exIdx = null;                                                                  // which word of the example is blanked
+  if (x && x.ex !== x.c) exIdx = (colParts(x.ex).b.match(WORD_RX) || []).length;
+  let exManual = exIdx != null;
+
+  const cWords = () => cIn.value.trim().match(WORD_RX) || [];
+  const exWords = () => exIn.value.match(WORD_RX) || [];
+  const setSt = (cls, t) => { const e = $k('#k-st'); e.className = 'fstatus' + (cls ? ' ' + cls : ''); e.textContent = t; };
+  function autoFind() {
+    const key = (cWords()[keyIdx] || '').toLowerCase(); if (!key) return null;
+    const ws = exWords().map(w => w.toLowerCase());
+    let i = ws.indexOf(key);
+    if (i < 0) { const stem = key.slice(0, Math.max(3, key.length - 2)); i = ws.findIndex(w => w.startsWith(stem)); }
+    return i < 0 ? null : i;
+  }
+  function draw() {
+    const ws = cWords();
+    if (keyIdx >= ws.length) keyIdx = 0;
+    $k('#k-keys').innerHTML = ws.length
+      ? ws.map((w, i) => `<button type="button" class="key ${i === keyIdx ? 'on' : ''}" data-i="${i}">${esc(w)}</button>`).join('')
+      : '<span class="muted small">اول کالوکیشن را بنویسید.</span>';
+    $k('#k-keys').querySelectorAll('.key').forEach(b => b.onclick = () => { keyIdx = +b.dataset.i; exManual = false; draw(); });
+    // spelling
+    if (!ws.length) setSt('', '');
+    else if (!D) setSt('', 'دیکشنری در حال بارگذاری…');
+    else { const bad = unknownTokens(D, cIn.value); setSt(bad.length ? 'warn' : 'ok', bad.length ? `در دیکشنری نیست: ${bad.join('، ')}` : '✓ املای همه کلمه‌ها درست است'); }
+    // example preview
+    const ew = exWords();
+    if (!exManual) exIdx = autoFind();
+    if (!exIn.value.trim()) { $k('#k-prev').innerHTML = ws.length ? `<span class="muted small" dir="rtl">بدون جمله، خود کالوکیشن با جای خالی پرسیده می‌شود: </span>${colGap(bracket(cIn.value.trim(), keyIdx), false)}` : ''; return; }
+    let k = 0;
+    $k('#k-prev').innerHTML = exIn.value.replace(WORD_RX, w => { const i = k++; return `<button type="button" class="exw ${i === exIdx ? 'on' : ''}" data-i="${i}">${esc(w)}</button>`; })
+      + (exIdx == null ? `<div class="warn small" dir="rtl">کلمه «${esc(cWords()[keyIdx] || '')}» در جمله پیدا نشد؛ روی کلمه‌ای که باید خالی شود بزنید.</div>` : '');
+    $k('#k-prev').querySelectorAll('.exw').forEach(b => b.onclick = () => { exIdx = +b.dataset.i; exManual = true; draw(); });
+  }
+  function bracket(text, idx) {   // put [ ] around the idx-th word
+    let k = 0;
+    return text.replace(WORD_RX, w => (k++ === idx ? `[${w}]` : w));
+  }
+  cIn.addEventListener('input', debounce(() => { exManual = false; draw(); }, 80));
+  exIn.addEventListener('input', debounce(() => { exManual = false; draw(); }, 120));
+  loadDict('en').then(d => { D = d; draw(); });
+  draw();
+  if (!c) setTimeout(() => cIn.focus(), 250);
+
+  $k('#k-save').onclick = () => {
+    const coll = cIn.value.trim().replace(/\s+/g, ' '), fa = $k('#k-fa').value.trim();
+    const ex = exIn.value.trim().replace(/\s+/g, ' ');
+    if (cWords().length < 2) { toast('کالوکیشن دست‌کم دو کلمه دارد.'); cIn.focus(); return; }
+    if (hasPersian(coll) || hasPersian(ex)) { toast('در بخش انگلیسی حروف فارسی تایپ شده.'); return; }
+    if (!fa) { toast('معنی فارسی را بنویسید.'); $k('#k-fa').focus(); return; }
+    if (!D) { toast('دیکشنری بارگذاری نشده؛ یک بار با اینترنت باز کنید.'); return; }
+    const bad = unknownTokens(D, coll);
+    if (bad.length) { toast(`این کلمه در دیکشنری نیست: ${bad.join('، ')}`); cIn.focus(); return; }
+    if (ex && exIdx == null) { toast('در پیش‌نمایش جمله، روی کلمه‌ای که باید خالی شود بزنید.'); return; }
+    const dup = state.cards.find(o => o !== c && normTerm(o.term) === normTerm(coll));
+    if (dup) { toast(`«${dup.term}» همین حالا در این بخش هست.`); return; }
+    const cx = bracket(coll, keyIdx);
+    const nx = { c: cx, ex: ex ? bracket(ex, exIdx) : cx, exfa: $k('#k-exfa').value.trim(), why: '', trap: $k('#k-trap').value.trim(), also: '', alt: [], set: '' };
+    const note = $k('#k-note').value.trim();
+    if (c) { Object.assign(c, { term: coll, fa, note, x: nx }); toast('تغییرات ذخیره شد.'); }
+    else { state.cards.push({ ...makeCard(coll, fa, note, '', -1), id: 'c:' + uid(), custom: true, x: nx }); toast(`«${coll}» اضافه شد.`); }
+    save(); closeSheet(); render();
+  };
+  $k('#k-del')?.addEventListener('click', () => {
+    if (!confirm(`کالوکیشن «${c.term}» حذف شود؟`)) return;
+    state.cards = state.cards.filter(o => o.id !== c.id);
+    save(); closeSheet(); render(); toast('حذف شد.');
+  });
+  $k('#k-restart')?.addEventListener('click', () => { c.box = 1; c.due = today(); save(); closeSheet(); render(); toast('کارت به خانه ۱ برگشت.'); });
+}
 $('#add-btn').addEventListener('click', () => editCard(null));
 
 /* bulk import */
@@ -1756,7 +1924,15 @@ $('#bulk-btn').addEventListener('click', () => {
 const NP_STEPS = [3, 5, 8, 10, 15, 20, 30, 50];
 function renderSettings() {
   const L = LANGS[lang];
-  $('#settings-sub').textContent = `جعبه ${deckTitle().replace(':', '،')}`;
+  const col = isCollocDeck();
+  $('#h-settings').textContent = col ? 'تنظیمات کالوکیشن‌ها' : `تنظیمات لغات ${L.name}`;
+  $('#settings-sub').textContent = col ? 'برای همه بخش‌های کالوکیشن؛ جدا از لغات' : `برای همه سطح‌های لغات ${L.name}؛ جدا از کالوکیشن‌ها`;
+  $('#ans-row').classList.toggle('hidden', !col);
+  document.querySelectorAll('#ans-seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.ans === (state.settings.answerMode || 'type')));
+  $('#np-label').firstChild.textContent = col ? 'کالوکیشن جدید در روز' : 'کارت جدید در روز';
+  $('#speak-label').firstChild.textContent = col ? 'پخش خودکار جمله' : 'تلفظ خودکار';
+  $('#speak-help').textContent = col ? 'بعد از برگرداندن کارت، کل جمله مثال خوانده شود' : 'کلمه هنگام نمایش خوانده شود';
+  $('#reset-title').textContent = `شروع دوباره همین جعبه (${deckTitle()})`;
   $('#reset-all').textContent = 'پاک کردن پیشرفت و ویرایش‌ها';
   $('#dir-fwd').textContent = isCollocDeck() ? 'کالوکیشن ← معنی' : `${L.name} ← فارسی`;
   $('#dir-rev').textContent = isCollocDeck() ? 'جای خالی (پیشنهادی)' : `فارسی ← ${L.name}`;
@@ -1779,6 +1955,7 @@ function stepNP(delta) {
 $('#np-minus').onclick = () => stepNP(-1);
 $('#np-plus').onclick = () => stepNP(1);
 $('#auto-speak').addEventListener('change', e => { state.settings.autoSpeak = e.target.checked; save(); });
+document.querySelectorAll('#ans-seg button').forEach(b => b.addEventListener('click', () => { state.settings.answerMode = b.dataset.ans; save(); renderSettings(); }));
 
 async function checkPersist() {
   const st = $('#persist-state'), help = $('#persist-help');
