@@ -97,8 +97,8 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .top h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
 .top p{margin:2px 0 0;color:var(--muted);font-size:14px}
 .top .date{color:var(--muted);font-size:13px;text-align:left;white-space:nowrap}
-.back{display:inline-flex;align-items:center;gap:2px;color:var(--accent-strong);font-weight:700;font-size:15px;margin:0 0 6px -4px;padding:6px 4px}
-.back svg{width:20px;height:20px}
+.backlink{display:inline-flex;align-items:center;gap:2px;color:var(--accent-strong);font-weight:700;font-size:15px;margin:0 0 6px -4px;padding:6px 4px}
+.backlink svg{width:20px;height:20px}
 .who{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
 .who b{color:var(--ink)}
 .link-btn{color:var(--accent-strong);font-weight:700;font-size:14px;padding:6px 2px}
@@ -178,7 +178,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .card-wrap{flex:1;min-height:260px;perspective:1400px;display:flex}
 .flash{position:relative;flex:1;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.3,.7,.2,1)}
 .flash.flipped{transform:rotateY(180deg)}
-.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border-radius:26px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 22px;text-align:center;border-top:7px solid var(--bx, var(--accent))}
+.face{position:absolute;inset:0;color:var(--ink);backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border-radius:26px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 22px;text-align:center;border-top:7px solid var(--bx, var(--accent))}
 .face.back{transform:rotateY(180deg)}
 .face .word{font-size:clamp(30px, 9vw, 46px);font-weight:700;line-height:1.25;word-break:break-word}
 .face .word.fa-word{font-family:var(--fa);font-weight:800}
@@ -311,6 +311,38 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .pick-row .pl{flex:none;font-size:11px;font-weight:800;color:var(--accent-strong);font-family:var(--lat)}
 .pick-row.fix{box-shadow:inset 0 0 0 1.5px var(--accent)}
 .pick-row.sel{box-shadow:inset 0 0 0 2px var(--good)}
+
+/* ---------- collocations ---------- */
+.sec{font-size:18px;font-weight:800;margin:26px 4px 6px}
+.method{background:var(--surface);border-radius:16px;padding:12px 16px;margin-bottom:12px;box-shadow:var(--shadow);font-size:14px;line-height:1.9}
+.method summary{cursor:pointer;font-weight:700;color:var(--accent-strong)}
+.method ol{margin:10px 0 2px;padding-right:20px}
+.method li{margin-bottom:6px;color:var(--muted)}
+.method li b{color:var(--ink)}
+.lvl.col .code{font-size:15px;background:color-mix(in srgb, var(--accent) 16%, var(--surface));color:var(--accent-strong)}
+.face.col{padding:44px 20px 24px}
+.face.back.col{justify-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.col-fa{font-size:26px;font-weight:800;margin-bottom:16px}
+.col-chunk{font-size:clamp(24px, 7vw, 32px);font-weight:700;line-height:1.3}
+.col-sent{font-size:19px;line-height:1.7;margin-top:6px;max-width:30ch}
+.col-sent mark,.col-chunk mark{background:none;color:var(--accent-strong);font-weight:700;border-bottom:2.5px solid var(--accent)}
+.gap{display:inline-block;border-bottom:2.5px dashed var(--accent);margin:0 3px;min-height:1.2em;color:var(--accent-strong);font-weight:700;vertical-align:baseline}
+.col-back{width:100%;text-align:center}
+.col-fa2{font-size:19px;font-weight:800;margin:4px 0 8px}
+.col-exfa{font-size:14px;color:var(--muted);margin:4px 0 12px}
+.col-row{display:flex;gap:10px;text-align:right;font-size:14px;line-height:1.8;padding:8px 0;border-top:1px solid var(--line)}
+.col-row b{flex:none;width:58px;color:var(--muted);font-size:12.5px;padding-top:2px}
+.col-row.trap s{color:var(--bad);text-decoration-thickness:2px}
+.col-res{border-radius:10px;padding:6px 10px;margin:2px 0 8px;font-size:14px}
+.col-res.ok{background:color-mix(in srgb, var(--good) 14%, var(--surface));color:var(--good)}
+.col-res.bad{background:color-mix(in srgb, var(--bad) 12%, var(--surface));color:var(--bad)}
+.col-res s{text-decoration-thickness:2px}
+.col-input{display:flex;gap:8px;margin-top:14px}
+.col-input input{flex:1;min-width:0;min-height:50px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);padding:0 14px;font-size:18px;outline:none}
+.col-input input:focus{border-color:var(--accent)}
+.col-input .btn{flex:none;width:auto;padding:0 20px}
+.col-aux{margin-top:8px}
+.answers .btn.suggest{box-shadow:0 0 0 3px color-mix(in srgb, currentColor 35%, transparent)}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 </style>
 </head>
@@ -358,7 +390,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 
   <!-- ===== LEVELS (after choosing a language) ===== -->
   <section class="screen" id="screen-levels" aria-labelledby="h-levels">
-    <button type="button" class="back" id="levels-back">
+    <button type="button" class="backlink" id="levels-back">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>زبان‌ها
     </button>
     <header class="top">
@@ -372,7 +404,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
   <section class="screen" id="screen-deck">
 
     <section class="view active" id="view-home" aria-labelledby="h-home">
-      <button type="button" class="back" data-back>
+      <button type="button" class="backlink" data-back>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>سطح‌ها
       </button>
       <header class="top">
@@ -402,7 +434,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
     </section>
 
     <section class="view" id="view-cards" aria-labelledby="h-cards">
-      <button type="button" class="back" data-back>
+      <button type="button" class="backlink" data-back>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>سطح‌ها
       </button>
       <header class="top"><div><h1 id="h-cards">کارت‌ها</h1><p id="cards-total"></p></div></header>
@@ -421,7 +453,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
     </section>
 
     <section class="view" id="view-settings" aria-labelledby="h-settings">
-      <button type="button" class="back" data-back>
+      <button type="button" class="backlink" data-back>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>سطح‌ها
       </button>
       <header class="top"><div><h1 id="h-settings">تنظیمات</h1><p id="settings-sub"></p></div></header>
@@ -511,7 +543,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 (() => {
 'use strict';
 
-const APP_VERSION = '4.0.1';
+const APP_VERSION = '5.0.0';
 const SESSION_KEY = 'leitner:v2:session';
 const PROFILE_KEY = u => `leitner:v2:profile:${u}`;
 const LEGACY_KEY = 'leitner-es-fa:v1';
@@ -682,7 +714,13 @@ const LEVELS = {
     { id: 'B1', code: 'B1', name: 'متوسط', sub: 'هم‌تراز آیلتس ۴ تا ۵' },
     { id: 'B2', code: 'B2', name: 'فوق متوسط', sub: 'هم‌تراز آیلتس ۵.۵ تا ۶.۵' },
     { id: 'C1', code: 'C1', name: 'پیشرفته', sub: 'هم‌تراز آیلتس ۷ تا ۸' },
-    { id: 'AWL', code: 'AWL', name: 'واژگان آکادمیک', sub: 'آیلتس آکادمیک؛ فهرست Coxhead در ۱۰ زیرفهرست' }
+    { id: 'AWL', code: 'AWL', name: 'واژگان آکادمیک', sub: 'آیلتس آکادمیک؛ فهرست Coxhead در ۱۰ زیرفهرست' },
+    { id: 'MD', code: 'M/D', group: 'col', name: 'make و do', sub: 'make چیزی پدید می‌آورد؛ do کاری را انجام می‌دهد' },
+    { id: 'TH', code: 'take', group: 'col', name: 'take، have و فعل‌های دیگر', sub: 'pay، keep، catch، tell، give، get…' },
+    { id: 'AN', code: 'A+N', group: 'col', name: 'صفت + اسم', sub: 'heavy rain، strong coffee، high price…' },
+    { id: 'AD', code: 'adv', group: 'col', name: 'قید + صفت یا فعل', sub: 'highly likely، deeply concerned…' },
+    { id: 'PR', code: 'in/on', group: 'col', name: 'حرف اضافه وابسته', sub: 'interested in، depend on، afraid of…' },
+    { id: 'AC', code: 'IELTS', group: 'col', name: 'کالوکیشن‌های آکادمیک آیلتس', sub: 'برای Writing Task 1 و Task 2' }
   ],
   es: [
     { id: 'A1', code: 'A1', name: 'مبتدی', sub: 'هم‌تراز DELE A1' },
@@ -692,10 +730,11 @@ const LEVELS = {
     { id: 'C1', code: 'C1', name: 'پیشرفته', sub: 'هم‌تراز DELE C1' }
   ]
 };
-const LEVEL_COUNTS = {"en": {"A1": 898, "A2": 793, "B1": 691, "B2": 1297, "C1": 1278, "AWL": 570}, "es": {"A1": 1249, "A2": 1287, "B1": 853, "B2": 414, "C1": 262}};
+const LEVEL_COUNTS = {"en": {"A1": 898, "A2": 793, "B1": 691, "B2": 1297, "C1": 1278, "AWL": 570, "MD": 37, "TH": 41, "AN": 28, "AD": 25, "PR": 28, "AC": 32}, "es": {"A1": 1249, "A2": 1287, "B1": 853, "B2": 414, "C1": 262}};
 const dkey = (l, lv) => `${l}:${lv}`;
 const LEVEL_ORDER = { en: ['A1', 'A2', 'B1', 'B2', 'C1', 'AWL'], es: ['A1', 'A2', 'B1', 'B2', 'C1'] };
-const lowerLevels = (l, lv) => LEVEL_ORDER[l].slice(0, LEVEL_ORDER[l].indexOf(lv));
+const lowerLevels = (l, lv) => { const i = LEVEL_ORDER[l].indexOf(lv); return i > 0 ? LEVEL_ORDER[l].slice(0, i) : []; };
+const COL_IDS = new Set(['MD', 'TH', 'AN', 'AD', 'PR', 'AC']);
 const bareTerm = t => String(t || '').replace(/^(el\/la|el|la|los|las)\s+/i, '');
 const sortKey = t => normTerm(bareTerm(t));
 const levelInfo = (l, lv) => LEVELS[l].find(x => x.id === lv);
@@ -758,16 +797,19 @@ function loadProfile(u) {
 }
 function getDeck(l, lv) {
   const k = dkey(l, lv);
-  if (!profile.decks[k]) profile.decks[k] = freshLevelDeck();
+  if (!profile.decks[k]) {
+    profile.decks[k] = freshLevelDeck();
+    if (COL_IDS.has(lv)) Object.assign(profile.decks[k].settings, { direction: 'rev', newPerDay: 8 });   // collocations: produce, not just recognise
+  }
   return profile.decks[k];
 }
 /* build full cards for a level deck: text from the vocabulary file, progress from storage */
 function materialize(l, lv, d) {
   const list = (VOCAB[l] && VOCAB[l][lv]) || [];
-  const cards = list.map(([id, term, fa, note], i) => {
+  const cards = list.map(([id, term, fa, note, x], i) => {
     const p = d.prog[id];
     return {
-      id, term, fa: (p && p.fa) || fa, note: (p && p.note != null) ? p.note : note, base: [fa, note], cat: '',
+      id, term, x, fa: (p && p.fa) || fa, note: (p && p.note != null) ? p.note : note, base: [fa, note], cat: '',
       box: p ? p.b : 0, due: p ? p.d : null, order: i, reviews: p ? (p.r || 0) : 0, lapses: p ? (p.l || 0) : 0, last: p ? p.t || null : null
     };
   });
@@ -1010,7 +1052,7 @@ function renderLangs() {
     }
     return `<button type="button" class="lang-card" data-lang="${l}" aria-label="${L.name}، ${num(todayN)} کارت برای امروز">
       <div class="head">
-        <div><span class="native" lang="${l}">${L.native}</span><span class="faname">${L.name} به فارسی، ${num(LEVELS[l].length)} سطح</span></div>
+        <div><span class="native" lang="${l}">${L.native}</span><span class="faname">${L.name} به فارسی، ${num(LEVELS[l].filter(x => !x.group).length)} سطح${LEVELS[l].some(x => x.group) ? ` و ${num(LEVELS[l].filter(x => x.group).length)} بخش کالوکیشن` : ''}</span></div>
         <div class="due ${todayN ? '' : 'zero'}"><b>${num(todayN)}</b><span>${todayN ? 'برای امروز' : 'امروز تمام'}</span></div>
       </div>
       <div class="mini" aria-hidden="true">${miniBars(counts)}</div>
@@ -1031,16 +1073,27 @@ const SOURCES = {
   en: 'منابع: فهرست‌های Oxford 3000 و Oxford 5000 (سطح‌بندی CEFR، انتشارات دانشگاه آکسفورد) و Academic Word List (Averil Coxhead, 2000). هم‌ترازی سطح‌ها با نمره آیلتس طبق جدول رسمی آیلتس است. معنی‌های فارسی برای این برنامه نوشته شده‌اند.',
   es: 'منبع: ELELex، فهرست سطح‌بندی‌شده واژگان اسپانیایی برای خارجی‌زبانان از پروژه CEFRLex، دانشگاه لووَن (مجوز CC BY-NC-SA 4.0). سطح هر لغت اولین سطحی است که در کتاب‌های درسی آن سطح به‌طور پایدار ظاهر می‌شود؛ لغات نادر و منطقه‌ای حذف شده‌اند. معنی‌های فارسی برای این برنامه نوشته شده‌اند.'
 };
+const COL_HEADER = `<h2 class="sec">کالوکیشن‌ها</h2>
+<details class="method"><summary>این بخش چطور به خاطر سپردن را بهتر می‌کند؟</summary>
+<ol>
+<li><b>تولید، نه فقط شناختن.</b> روی کارت معنی فارسی و جمله‌ای با جای خالی می‌بینید و کلمه را خودتان می‌نویسید. به یاد آوردنِ فعال (اثر آزمون و اثر تولید) کالوکیشن را بسیار محکم‌تر از دیدن و تشخیص دادن در حافظه نگه می‌دارد.</li>
+<li><b>بازخورد دقیق.</b> جواب تایپ‌شده با جواب درست مقایسه می‌شود و اگر غلط باشد، دقیقاً می‌بینید کجا.</li>
+<li><b>تله‌های فارسی‌زبان‌ها.</b> سخت‌ترین کالوکیشن‌ها آن‌هایی‌اند که با معادل فارسی جور نیستند (مثل «سرما خوردن» ← catch a cold). هر کارت اشتباه رایج را خط‌خورده نشان می‌دهد.</li>
+<li><b>چرا این کلمه؟</b> دلیل معنایی هر ترکیب (مثلاً make چیزی پدید می‌آورد و do کاری انجام می‌دهد) به‌جای حفظ کورکورانه آمده است.</li>
+<li><b>شبکه کلمه.</b> کالوکیشن‌های هم‌خانواده همان کلمه روی پشت کارت هستند.</li>
+<li><b>جدا نگه داشتن رقیب‌ها.</b> کارت‌های جدید make پیش از do معرفی می‌شوند و در مرور، کارت‌های یک فعل کنار هم و جدا از رقیبش می‌آیند، چون یادگیری هم‌زمان ترکیب‌های شبیه تداخل ایجاد می‌کند. جمله کامل هم با صدا پخش می‌شود تا ترکیب یک‌جا در ذهن بنشیند.</li>
+</ol></details>`;
 function renderLevels() {
   const L = LANGS[lang];
   $('#h-levels').textContent = L.name;
   $('#levels-native').textContent = L.native;
-  $('#level-list').innerHTML = LEVELS[lang].map(lv => {
+  $('#level-list').innerHTML = LEVELS[lang].map((lv, i, arr) => {
+    const header = lv.group === 'col' && (!arr[i - 1] || arr[i - 1].group !== 'col') ? COL_HEADER : '';
     const sm = summarize(lang, lv.id);
     const started = sm.total - sm.counts[0];
     const pct = sm.total ? Math.round(started / sm.total * 100) : 0;
     const mpct = sm.total ? Math.round(sm.counts[MASTERED] / sm.total * 100) : 0;
-    return `<button type="button" class="lvl" data-lv="${lv.id}">
+    return `${header}<button type="button" class="lvl ${lv.group === 'col' ? 'col' : ''}" data-lv="${lv.id}">
       <span class="code">${lv.code}</span>
       <span class="info"><b>${lv.name}</b><small>${lv.sub}</small>
         <span class="bar" aria-hidden="true"><i class="s" style="width:${pct}%"></i><i class="m" style="width:${mpct}%"></i></span>
@@ -1065,6 +1118,7 @@ async function openDeck(lv) {
 }
 function closeDeck() { save(); state = null; level = null; deckKey = null; showScreen('levels'); }
 const isLevelDeck = () => !!state && state.kind === 'level';
+const isCollocDeck = () => isLevelDeck() && COL_IDS.has(level);
 function deckTitle() {
   const L = LANGS[lang], lv = levelInfo(lang, level);
   return `${L.name} ${lv.code}`;
@@ -1139,12 +1193,35 @@ function startSession(extraNew) {
   const fresh = newPool().slice(0, newAllowanceToday()).map(c => c.id);
   const grouped = {};
   due.forEach(c => (grouped[c.box] = grouped[c.box] || []).push(c.id));
-  const queue = [1, 2, 3, 4, 5].flatMap(b => shuffle(grouped[b] || [])).concat(fresh);
+  let queue = [1, 2, 3, 4, 5].flatMap(b => shuffle(grouped[b] || [])).concat(fresh);
   if (!queue.length) { toast('کارتی برای مرور نیست.'); return; }
+  if (isCollocDeck()) queue = groupByCollocate(queue);
   S = { queue, i: 0, correct: 0, wrong: 0, firstSeen: new Set(), retry: new Set(), undo: [], dirs: [], flipped: false };
   $('#review').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
   renderReview();
+}
+/* collocations: keep cards of the same collocate together and apart from its rivals (make | do, in | on ...) */
+function groupByCollocate(ids) {
+  const key = id => { const c = byId(id); return c && c.x ? colParts(c.x.c).k.toLowerCase() : ''; };
+  const order = [];
+  ids.forEach(id => { const k = key(id); if (!order.includes(k)) order.push(k); });
+  return order.flatMap(k => ids.filter(id => key(id) === k));
+}
+function colParts(str) { const m = String(str).match(/^(.*?)\[([^\]]+)\](.*)$/); return m ? { b: m[1], k: m[2], a: m[3] } : { b: str, k: '', a: '' }; }
+const colPlain = str => String(str).replace(/[\[\]]/g, '');
+const colHi = str => { const p = colParts(str); return `${esc(p.b)}<mark>${esc(p.k)}</mark>${esc(p.a)}`; };
+const colNorm = str => String(str).toLowerCase().replace(/[^a-z'\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+function colGap(str, hint) {
+  const p = colParts(str);
+  const inner = hint ? p.k.split(/\s+/).map(w => esc(w[0]) + '…').join(' ') : '';
+  return `${esc(p.b)}<span class="gap" style="min-width:${Math.max(3, p.k.length * 0.62)}em">${inner}</span>${esc(p.a)}`;
+}
+function trapHTML(t) {
+  return t.split('؛').map(part => {
+    const m = part.trim().match(/^(.*?)\s*(\(.*\))?$/);
+    return `<s class="lat">${esc(m[1])}</s>${m[2] ? ` <span>${esc(m[2])}</span>` : ''}`;
+  }).join('، ');
 }
 function endSession() {
   S = null;
@@ -1199,6 +1276,30 @@ function renderReview() {
     ? `${faHTML}<div class="small lat" lang="${lang}">${esc(c.term)}</div>`
     : `${termHTML}<div class="small">${esc(c.fa)}</div>`;
   const note = c.note ? `<div class="note" dir="auto">${esc(c.note)}</div>` : '';
+  const x = c.x, col = !!x;
+  let frontInner, backInner, frontTag, backTag;
+  if (col) {
+    frontTag = 'کالوکیشن'; backTag = 'کالوکیشن';
+    frontInner = frontIsTerm
+      ? `<div class="col-chunk lat" lang="en">${colHi(x.c)}</div><div class="col-sent lat" lang="en">${colHi(x.ex)}</div><div class="tap">معنی این ترکیب چیست؟</div>`
+      : `<div class="col-fa">${esc(c.fa)}</div><div class="col-sent lat" lang="en" id="col-gap">${colGap(x.ex, S.hint)}</div><div class="tap">کلمه جاافتاده را بنویسید</div>`;
+    backInner = `<div class="col-back">
+      <div class="col-chunk lat" lang="en">${colHi(x.c)}</div>
+      <div class="col-fa2">${esc(c.fa)}</div>
+      <div id="col-result"></div>
+      <div class="col-sent lat" lang="en">${colHi(x.ex)}</div>
+      <div class="col-exfa">${esc(x.exfa)}</div>
+      ${x.why ? `<div class="col-row"><b>چرا؟</b><span>${esc(x.why)}</span></div>` : ''}
+      ${x.trap ? `<div class="col-row trap"><b>تله</b><span>${trapHTML(x.trap)}</span></div>` : ''}
+      ${x.also ? `<div class="col-row"><b>شبکه</b><span dir="auto">${esc(x.also)}</span></div>` : ''}
+      ${c.note ? `<div class="col-row"><b>یادداشت</b><span dir="auto">${esc(c.note)}</span></div>` : ''}
+    </div>`;
+  } else {
+    frontTag = frontIsTerm ? L.name : 'فارسی'; backTag = frontIsTerm ? 'فارسی' : L.name;
+    frontInner = `${front}<div class="tap">برای دیدن جواب لمس کنید</div>`;
+    backInner = `${back}${note}`;
+  }
+  const speakText = col ? colPlain(x.ex) : c.term;
   root.innerHTML = `
     <div class="rv-head">
       <button class="icon-btn" id="rv-close" aria-label="پایان مرور">${ICON.close}</button>
@@ -1208,39 +1309,65 @@ function renderReview() {
     <div class="rv-meta"><span>${num(S.queue.length - S.i)} کارت مانده</span><span>${isRetry ? 'تکرار همین جلسه' : boxLabel}</span></div>
     <div class="card-wrap">
       <div class="flash ${S.flipped ? 'flipped' : ''}" id="flash" style="--bx:${bx}">
-        <div class="face front" role="button" tabindex="0" aria-label="نمایش جواب">
-          <span class="box-tag">${frontIsTerm ? L.name : 'فارسی'}</span>
+        <div class="face front ${col ? 'col' : ''}" role="button" tabindex="0" aria-label="نمایش جواب">
+          <span class="box-tag">${frontTag}</span>
           ${frontIsTerm ? `<button class="speak" data-speak aria-label="تلفظ">${ICON.speak}</button>` : ''}
-          ${front}<div class="tap">برای دیدن جواب لمس کنید</div>
+          ${frontInner}
         </div>
-        <div class="face back" aria-hidden="${S.flipped ? 'false' : 'true'}">
-          <span class="box-tag">${frontIsTerm ? 'فارسی' : L.name}</span>
+        <div class="face back ${col ? 'col' : ''}" aria-hidden="${S.flipped ? 'false' : 'true'}">
+          <span class="box-tag">${backTag}</span>
           <button class="speak" data-speak aria-label="تلفظ">${ICON.speak}</button>
-          ${back}${note}
+          ${backInner}
         </div>
       </div>
     </div>
     <div id="rv-actions"></div>`;
   const actions = $('#rv-actions');
-  if (!S.flipped) { actions.innerHTML = `<button class="btn btn-primary reveal" id="rv-reveal">نمایش جواب</button>`; $('#rv-reveal').onclick = flip; }
+  if (!S.flipped && col && !frontIsTerm) {
+    actions.innerHTML = `<div class="col-input">
+        <input id="col-ans" class="lat" lang="en" dir="ltr" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="کلمه جاافتاده" aria-label="کلمه جاافتاده">
+        <button class="btn btn-primary btn-small" id="col-check" type="button">بررسی</button>
+      </div>
+      <div class="btn-row col-aux"><button class="btn btn-ghost btn-small" id="col-hint" type="button" ${S.hint ? 'disabled' : ''}>راهنما: حرف اول</button><button class="btn btn-ghost btn-small" id="rv-reveal" type="button">نمایش جواب</button></div>`;
+    const ans = $('#col-ans');
+    const check = () => {
+      const val = ans.value.trim();
+      if (!val) { ans.focus(); return; }
+      const ok = [colParts(x.ex).k, ...(x.alt || [])].some(a => colNorm(a) === colNorm(val));
+      S.typed = { val, ok };
+      flip();
+    };
+    $('#col-check').onclick = check;
+    ans.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); check(); } });
+    $('#col-hint').onclick = () => { S.hint = true; $('#col-gap').innerHTML = colGap(x.ex, true); $('#col-hint').disabled = true; ans.focus(); };
+    $('#rv-reveal').onclick = flip;
+  } else if (!S.flipped) { actions.innerHTML = `<button class="btn btn-primary reveal" id="rv-reveal">نمایش جواب</button>`; $('#rv-reveal').onclick = flip; }
   else { actions.innerHTML = answersHTML(); wireAnswers(); }
   const ff = root.querySelector('.face.front');
   ff.addEventListener('click', e => { if (!e.target.closest('[data-speak]')) flip(); });
   ff.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
-  root.querySelectorAll('[data-speak]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); speak(c.term); }));
+  root.querySelectorAll('[data-speak]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); speak(speakText); }));
   $('#rv-close').onclick = () => { if (S.i > 0) toast('پیشرفت ذخیره شد.'); endSession(); };
   $('#rv-undo').onclick = undo;
-  if (state.settings.autoSpeak && !S.spokeFor && frontIsTerm && !S.flipped) { S.spokeFor = id; speak(c.term); }
+  if (state.settings.autoSpeak && !S.spokeFor && frontIsTerm && !S.flipped) { S.spokeFor = id; speak(speakText); }
 }
 function flip() {
   if (!S || S.flipped) return;
   S.flipped = true;
   const c = byId(S.queue[S.i]);
   $('#flash')?.classList.add('flipped');
-  if (state.settings.autoSpeak && directionFor(S.i) === 'rev') speak(c.term);
+  if (c.x && S.typed) {
+    const right = colParts(c.x.ex).k;
+    $('#col-result').innerHTML = S.typed.ok
+      ? `<div class="col-res ok">✓ درست نوشتید: <b class="lat">${esc(S.typed.val)}</b></div>`
+      : `<div class="col-res bad">نوشتید <s class="lat">${esc(S.typed.val)}</s>؛ درستش <b class="lat">${esc(right)}</b> است</div>`;
+  }
+  if (state.settings.autoSpeak || c.x) speak(c.x ? colPlain(c.x.ex) : c.term);   // collocations: always hear the whole chunk
   $('#rv-actions').innerHTML = answersHTML(); wireAnswers();
   document.querySelector('.face.back')?.setAttribute('aria-hidden', 'false');
-  $('#rv-yes').focus({ preventScroll: true });
+  const suggested = c.x && S.typed ? (S.typed.ok ? '#rv-yes' : '#rv-no') : '#rv-yes';
+  $(suggested).classList.add('suggest');
+  $(suggested).focus({ preventScroll: true });
 }
 function answer(correct) {
   if (!S || !S.flipped) return;
@@ -1258,7 +1385,7 @@ function answer(correct) {
   }
   if (!correct) { S.queue.push(id); S.retry.add(id); }
   save();
-  S.i++; S.flipped = false; S.spokeFor = null;
+  S.i++; S.flipped = false; S.spokeFor = null; S.typed = null; S.hint = false;
   renderReview();
 }
 function undo() {
@@ -1269,7 +1396,7 @@ function undo() {
   S.queue.length = u.qlen; S.i = u.i; S.correct = u.correct; S.wrong = u.wrong;
   if (u.first) S.firstSeen.delete(u.id);
   if (!u.retryHad) S.retry.delete(u.id);
-  S.flipped = true; S.spokeFor = u.id;
+  S.flipped = true; S.spokeFor = u.id; S.typed = null; S.hint = false;
   save(); renderReview();
 }
 document.addEventListener('keydown', e => {
@@ -1293,7 +1420,7 @@ function renderCards() {
   if (!lower.length) scope = 'here';
   $('#scope-lower').textContent = lower.length === 1 ? `سطح ${lower[0]}` : `سطح‌های ${lower[0]} تا ${lower[lower.length - 1]}`;
   document.querySelectorAll('#scope-seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.scope === scope));
-  document.querySelector('#view-cards .toolbar').classList.toggle('hidden', scope !== 'here');
+  document.querySelector('#view-cards .toolbar').classList.toggle('hidden', scope !== 'here' || isCollocDeck());
   $('#chips').classList.toggle('hidden', scope !== 'here');
   $('#search').placeholder = `جستجوی کلمه ${L.name} یا فارسی`;
   const q = $('#search').value, qT = normTerm(q), qF = normFa(q);
@@ -1631,8 +1758,8 @@ function renderSettings() {
   const L = LANGS[lang];
   $('#settings-sub').textContent = `جعبه ${deckTitle().replace(':', '،')}`;
   $('#reset-all').textContent = 'پاک کردن پیشرفت و ویرایش‌ها';
-  $('#dir-fwd').textContent = `${L.name} ← فارسی`;
-  $('#dir-rev').textContent = `فارسی ← ${L.name}`;
+  $('#dir-fwd').textContent = isCollocDeck() ? 'کالوکیشن ← معنی' : `${L.name} ← فارسی`;
+  $('#dir-rev').textContent = isCollocDeck() ? 'جای خالی (پیشنهادی)' : `فارسی ← ${L.name}`;
   document.querySelectorAll('#dir-seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.dir === state.settings.direction));
   $('#np-val').textContent = num(state.settings.newPerDay);
   $('#auto-speak').checked = !!state.settings.autoSpeak;
