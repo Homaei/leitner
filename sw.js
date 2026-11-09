@@ -1,6 +1,6 @@
 /* Service Worker: جعبه لایتنر اسپانیایی
    هر بار که index.html را تغییر دادید، شماره VERSION را بالا ببرید. */
-const VERSION = 'leitner-v1.0.0';
+const VERSION = 'leitner-v2.0.0';
 const SHELL_CACHE = `${VERSION}-shell`;
 const FONT_CACHE = 'leitner-fonts';
 const SHELL = [
@@ -9,7 +9,9 @@ const SHELL = [
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './icons/apple-touch-icon.png'
+  './icons/apple-touch-icon.png',
+  './dict/es.txt',
+  './dict/en.txt'
 ];
 
 self.addEventListener('install', event => {
