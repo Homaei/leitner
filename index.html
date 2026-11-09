@@ -273,6 +273,27 @@ button{cursor:pointer;border:0;background:none;padding:0}
 
 .toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);z-index:60;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- levels page ---------- */
+.lvl{display:flex;align-items:center;gap:14px;width:100%;text-align:right;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);padding:14px 16px;margin-bottom:12px;transition:transform .12s ease}
+.lvl:active{transform:scale(.985)}
+.lvl .code{flex:none;width:58px;height:58px;border-radius:16px;display:grid;place-items:center;font-family:var(--lat);font-weight:700;font-size:21px;direction:ltr;background:var(--surface-2);color:var(--ink)}
+.lvl.mine .code{background:var(--accent);color:var(--on-accent);font-size:28px}
+.lvl .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.lvl .info b{font-size:16px}
+.lvl .info small{font-size:12.5px;color:var(--muted);line-height:1.5}
+.lvl .bar{position:relative;display:block;height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin:6px 0 2px}
+.lvl .bar i{position:absolute;top:0;bottom:0;right:0;border-radius:99px}
+.lvl .bar .s{background:var(--b2);opacity:.45}
+.lvl .bar .m{background:var(--good)}
+.lvl .due{flex:none;text-align:center;min-width:44px}
+.lvl .due b{display:block;font-size:22px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.lvl .due small{font-size:11px;color:var(--muted)}
+.lvl .due.zero b{color:var(--muted)}
+.lvl .due.start small{display:inline-block;font-size:12px;font-weight:700;color:var(--accent-strong);padding:4px 10px;border-radius:99px;box-shadow:inset 0 0 0 1.5px var(--accent)}
+.sources{font-size:12.5px;color:var(--muted);line-height:1.9;margin:18px 4px 0}
+.list-more{padding:14px 16px;text-align:center;color:var(--muted);font-size:13px}
+.field input[readonly]{opacity:.75}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 </style>
 </head>
@@ -318,12 +339,24 @@ button{cursor:pointer;border:0;background:none;padding:0}
     <div id="lang-list"></div>
   </section>
 
+  <!-- ===== LEVELS (after choosing a language) ===== -->
+  <section class="screen" id="screen-levels" aria-labelledby="h-levels">
+    <button type="button" class="back" id="levels-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>زبان‌ها
+    </button>
+    <header class="top">
+      <div><h1 id="h-levels"></h1><p><span class="lat" id="levels-native"></span>، انتخاب سطح</p></div>
+    </header>
+    <div id="level-list"></div>
+    <p class="sources" id="sources"></p>
+  </section>
+
   <!-- ===== DECK ===== -->
   <section class="screen" id="screen-deck">
 
     <section class="view active" id="view-home" aria-labelledby="h-home">
       <button type="button" class="back" data-back>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>زبان‌ها
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>سطح‌ها
       </button>
       <header class="top">
         <div><h1 id="h-home"></h1><p id="home-sub"></p></div>
@@ -353,7 +386,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 
     <section class="view" id="view-cards" aria-labelledby="h-cards">
       <button type="button" class="back" data-back>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>زبان‌ها
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>سطح‌ها
       </button>
       <header class="top"><div><h1 id="h-cards">کارت‌ها</h1><p id="cards-total"></p></div></header>
       <div class="toolbar">
@@ -368,7 +401,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 
     <section class="view" id="view-settings" aria-labelledby="h-settings">
       <button type="button" class="back" data-back>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>زبان‌ها
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>سطح‌ها
       </button>
       <header class="top"><div><h1 id="h-settings">تنظیمات</h1><p id="settings-sub"></p></div></header>
 
@@ -397,7 +430,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 
       <div class="group">
         <h3>پشتیبان</h3>
-        <div class="prose"><p>داده‌ها فقط روی همین گوشی ذخیره می‌شوند. پشتیبان شامل هر دو زبانِ همین کاربر است. هر چند وقت یک بار پشتیبان بگیرید و فایل را در iCloud Drive نگه دارید.</p></div>
+        <div class="prose"><p>داده‌ها فقط روی همین گوشی ذخیره می‌شوند. پشتیبان شامل همه زبان‌ها و سطح‌های همین کاربر است. هر چند وقت یک بار پشتیبان بگیرید و فایل را در iCloud Drive نگه دارید.</p></div>
         <div class="btn-row" style="padding-bottom:14px">
           <button class="btn btn-ghost btn-small" id="export-btn" type="button">ذخیره پشتیبان</button>
           <button class="btn btn-ghost btn-small" id="import-btn" type="button">بازگردانی پشتیبان</button>
@@ -420,7 +453,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
       </div>
 
       <div class="group">
-        <h3>شروع دوباره همین زبان</h3>
+        <h3>شروع دوباره همین جعبه</h3>
         <div class="btn-row" style="padding:10px 0 14px">
           <button class="btn btn-danger btn-small" id="reset-progress" type="button">صفر کردن پیشرفت</button>
           <button class="btn btn-danger btn-small" id="reset-all" type="button">بازگشت به کارت‌های اولیه</button>
@@ -457,7 +490,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 (() => {
 'use strict';
 
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '3.0.0';
 const SESSION_KEY = 'leitner:v2:session';
 const PROFILE_KEY = u => `leitner:v2:profile:${u}`;
 const LEGACY_KEY = 'leitner-es-fa:v1';
@@ -1037,48 +1070,124 @@ function unknownTokens(D, term) {
 }
 
 /* ---------- profiles & storage ---------- */
-let user = null, profile = null, lang = null, state = null;
+let user = null, profile = null, lang = null, level = null, deckKey = null, state = null;
+
+/* ---------- levels ---------- */
+const LEVELS = {
+  en: [
+    { id: 'mine', code: '+', name: 'لغات من', sub: 'لغت‌هایی که خودتان اضافه می‌کنید، با کارت‌های شروع' },
+    { id: 'A1', code: 'A1', name: 'مبتدی', sub: 'Oxford 3000' },
+    { id: 'A2', code: 'A2', name: 'مقدماتی', sub: 'Oxford 3000' },
+    { id: 'B1', code: 'B1', name: 'متوسط', sub: 'هم‌تراز آیلتس ۴ تا ۵' },
+    { id: 'B2', code: 'B2', name: 'فوق متوسط', sub: 'هم‌تراز آیلتس ۵.۵ تا ۶.۵' },
+    { id: 'C1', code: 'C1', name: 'پیشرفته', sub: 'هم‌تراز آیلتس ۷ تا ۸' },
+    { id: 'AWL', code: 'AWL', name: 'واژگان آکادمیک', sub: 'آیلتس آکادمیک؛ فهرست Coxhead در ۱۰ زیرفهرست' }
+  ],
+  es: [
+    { id: 'mine', code: '+', name: 'لغات من', sub: 'لغت‌هایی که خودتان اضافه می‌کنید، با کارت‌های شروع' },
+    { id: 'A1', code: 'A1', name: 'مبتدی', sub: 'هم‌تراز DELE A1' },
+    { id: 'A2', code: 'A2', name: 'مقدماتی', sub: 'هم‌تراز DELE A2' },
+    { id: 'B1', code: 'B1', name: 'متوسط', sub: 'هم‌تراز DELE B1' },
+    { id: 'B2', code: 'B2', name: 'فوق متوسط', sub: 'هم‌تراز DELE B2' },
+    { id: 'C1', code: 'C1', name: 'پیشرفته', sub: 'هم‌تراز DELE C1' }
+  ]
+};
+const LEVEL_COUNTS = {"en": {"A1": 898, "A2": 793, "B1": 691, "B2": 1297, "C1": 1278, "AWL": 570}, "es": {"A1": 1249, "A2": 1287, "B1": 853, "B2": 414, "C1": 262}};
+const dkey = (l, lv) => `${l}:${lv}`;
+const levelInfo = (l, lv) => LEVELS[l].find(x => x.id === lv);
+
+const VOCAB = {};
+function loadVocab(l) {
+  if (VOCAB[l]) return Promise.resolve(VOCAB[l]);
+  if (VOCAB['p:' + l]) return VOCAB['p:' + l];
+  VOCAB['p:' + l] = fetch(`./vocab/${l}.json`)
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(j => (VOCAB[l] = j))
+    .catch(() => { delete VOCAB['p:' + l]; return null; });
+  return VOCAB['p:' + l];
+}
 
 function makeCard(term, fa, note = '', cat = '', order = 0) {
   return { id: uid(), term, fa, note, cat, box: 0, due: null, order, reviews: 0, lapses: 0, last: null, created: Date.now() };
 }
+const defaultSettings = () => ({ direction: 'fwd', newPerDay: 10, autoSpeak: false });
 function freshDeck(l) {
-  return {
-    settings: { direction: 'fwd', newPerDay: 10, autoSpeak: false },
-    cards: LANGS[l].starter.map(([t, f, c], i) => makeCard(t, f, '', c, i)),
-    days: {}, newLog: {}, bonus: {}
-  };
+  return { settings: defaultSettings(), cards: LANGS[l].starter.map(([t, f, c], i) => makeCard(t, f, '', c, i)), days: {}, newLog: {}, bonus: {} };
+}
+function freshLevelDeck() {
+  return { kind: 'level', settings: defaultSettings(), prog: {}, days: {}, newLog: {}, bonus: {} };
+}
+function normalizeSettings(st) {
+  const settings = { ...defaultSettings(), ...(st || {}) };
+  if (settings.direction === 'es-fa') settings.direction = 'fwd';
+  if (settings.direction === 'fa-es') settings.direction = 'rev';
+  return settings;
 }
 function normalizeDeck(d, l) {
-  const base = freshDeck(l);
-  const dir = d.settings && d.settings.direction;
-  const settings = { ...base.settings, ...(d.settings || {}) };
-  if (dir === 'es-fa') settings.direction = 'fwd';
-  if (dir === 'fa-es') settings.direction = 'rev';
   const cards = (d.cards || []).filter(c => c && (c.term || c.es) && c.fa).map((c, i) => {
     const { es, ...rest } = c;
     return { ...makeCard(c.term || es, c.fa, c.note || '', c.cat || '', i), ...rest, term: c.term || es, id: c.id || uid() };
   });
-  return { settings, cards, days: d.days || {}, newLog: d.newLog || {}, bonus: d.bonus || {} };
+  return { settings: normalizeSettings(d.settings), cards, days: d.days || {}, newLog: d.newLog || {}, bonus: d.bonus || {} };
+}
+function normalizeLevelDeck(d) {
+  return { kind: 'level', settings: normalizeSettings(d.settings), prog: d.prog || {}, days: d.days || {}, newLog: d.newLog || {}, bonus: d.bonus || {} };
+}
+/* accepts version 2 (decks keyed "es"/"en") and version 3 (keyed "es:mine", "en:B2", ...) */
+function normalizeProfile(p) {
+  const decks = {};
+  for (const [k, d] of Object.entries((p && p.decks) || {})) {
+    if (!d) continue;
+    if (LANGS[k]) decks[dkey(k, 'mine')] = normalizeDeck(d, k);
+    else {
+      const [l, lv] = k.split(':');
+      if (!LANGS[l] || !levelInfo(l, lv)) continue;
+      decks[k] = lv === 'mine' ? normalizeDeck(d, l) : normalizeLevelDeck(d);
+    }
+  }
+  return { version: 3, decks, hintDismissed: !!(p && p.hintDismissed), savedAt: (p && p.savedAt) || null };
 }
 function loadProfile(u) {
   try {
     const raw = localStorage.getItem(PROFILE_KEY(u));
-    if (raw) {
-      const p = JSON.parse(raw);
-      const decks = {};
-      for (const l of Object.keys(LANGS)) if (p.decks && p.decks[l]) decks[l] = normalizeDeck(p.decks[l], l);
-      return { version: 2, decks, hintDismissed: !!p.hintDismissed, savedAt: p.savedAt || null };
-    }
+    if (raw) return normalizeProfile(JSON.parse(raw));
   } catch (e) { console.error(e); }
-  return { version: 2, decks: {}, hintDismissed: false, savedAt: null };
+  return normalizeProfile(null);
 }
-function getDeck(l) {
-  if (!profile.decks[l]) profile.decks[l] = freshDeck(l);
-  return profile.decks[l];
+function getDeck(l, lv) {
+  const k = dkey(l, lv);
+  if (!profile.decks[k]) profile.decks[k] = lv === 'mine' ? freshDeck(l) : freshLevelDeck();
+  return profile.decks[k];
+}
+/* build full cards for a level deck: text from the vocabulary file, progress from storage */
+function materialize(l, lv, d) {
+  const list = (VOCAB[l] && VOCAB[l][lv]) || [];
+  const cards = list.map(([id, term, fa, note], i) => {
+    const p = d.prog[id];
+    return {
+      id, term, fa: (p && p.fa) || fa, note: (p && p.note != null) ? p.note : note, base: [fa, note], cat: '',
+      box: p ? p.b : 0, due: p ? p.d : null, order: i, reviews: p ? (p.r || 0) : 0, lapses: p ? (p.l || 0) : 0, last: p ? p.t || null : null
+    };
+  });
+  return { kind: 'level', settings: d.settings, days: d.days, newLog: d.newLog, bonus: d.bonus, cards };
+}
+function syncLevelState() {
+  if (!state || state.kind !== 'level' || !deckKey || !profile.decks[deckKey]) return;
+  const d = profile.decks[deckKey], prog = {};
+  for (const c of state.cards) {
+    const faChanged = c.fa !== c.base[0], noteChanged = c.note !== c.base[1];
+    if (c.box > 0 || c.reviews > 0 || faChanged || noteChanged) {
+      const e = { b: c.box, d: c.due, r: c.reviews, l: c.lapses, t: c.last };
+      if (faChanged) e.fa = c.fa;
+      if (noteChanged) e.note = c.note;
+      prog[c.id] = e;
+    }
+  }
+  d.prog = prog; d.settings = state.settings; d.days = state.days; d.newLog = state.newLog; d.bonus = state.bonus;
 }
 function save() {
   if (!user || !profile) return;
+  syncLevelState();
   profile.savedAt = Date.now();
   try { localStorage.setItem(PROFILE_KEY(user), JSON.stringify(profile)); }
   catch (e) { toast('ذخیره نشد. فضای حافظه پر است یا Safari در حالت خصوصی است.'); }
@@ -1091,15 +1200,32 @@ function migrateLegacy() {
   try {
     const s = JSON.parse(raw);
     if (!s || !Array.isArray(s.cards)) return false;
-    const cur = profile.decks.es;
+    const cur = profile.decks[dkey('es', 'mine')];
     const curHasProgress = cur && cur.cards.some(c => c.box > 0);
     const oldHasProgress = s.cards.some(c => c.box > 0);
     if (!oldHasProgress || curHasProgress) { localStorage.setItem(MIGRATED_KEY, 'skipped'); return false; }
-    profile.decks.es = normalizeDeck(s, 'es');
+    profile.decks[dkey('es', 'mine')] = normalizeDeck(s, 'es');
     localStorage.setItem(MIGRATED_KEY, user);
     save();
     return true;
   } catch (e) { return false; }
+}
+/* stats for any deck without building all of its cards */
+function summarize(l, lv) {
+  const d = getDeck(l, lv);
+  if (d.kind !== 'level') {
+    const counts = boxCounts(d);
+    return { total: d.cards.length, counts, today: todayTotal(d), streak: streak(d), started: true };
+  }
+  const t = today(), counts = Array(7).fill(0);
+  let due = 0, touched = 0;
+  for (const e of Object.values(d.prog)) {
+    if (e.b > 0) { counts[e.b]++; touched++; if (e.b <= 5 && e.d <= t) due++; }
+  }
+  const total = LEVEL_COUNTS[l][lv] || 0;
+  counts[0] = Math.max(0, total - touched);
+  const started = touched > 0 || Object.keys(d.days).length > 0;
+  return { total, counts, today: due + Math.min(newAllowanceToday(d), counts[0]), streak: streak(d), started };
 }
 
 /* ---------- scheduling ---------- */
@@ -1137,7 +1263,7 @@ function speak(text) {
   if (!('speechSynthesis' in window)) { toast('این دستگاه از تلفظ پشتیبانی نمی‌کند.'); return; }
   const code = LANGS[lang].tts, base = code.slice(0, 2);
   speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text.replace(/[¿¡]/g, ''));
+  const u = new SpeechSynthesisUtterance(text.replace(/^el\/la /, 'el ').replace(/[¿¡]/g, ''));
   u.lang = code;
   const v = voices.find(v => v.lang === code) || voices.find(v => v.lang && v.lang.startsWith(base));
   if (v) u.voice = v;
@@ -1173,9 +1299,11 @@ function showView(name) {
 }
 document.querySelectorAll('.nav button').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
 document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', closeDeck));
+$('#levels-back').addEventListener('click', () => { lang = null; showScreen('langs'); });
 
 function render() {
   if (screen === 'langs') renderLangs();
+  else if (screen === 'levels') renderLevels();
   else if (screen === 'deck') {
     if (currentView === 'home') renderHome();
     else if (currentView === 'cards') renderCards();
@@ -1208,7 +1336,7 @@ function login(key, interactive) {
   user = key;
   profile = loadProfile(key);
   try { localStorage.setItem(SESSION_KEY, key); } catch (e) {}
-  for (const l of Object.keys(LANGS)) getDeck(l);
+  for (const l of Object.keys(LANGS)) getDeck(l, 'mine');
   const migrated = migrateLegacy();
   save();
   showScreen('langs');
@@ -1218,7 +1346,7 @@ function login(key, interactive) {
 function logout() {
   if (S) endSession();
   closeSheet();
-  user = null; profile = null; lang = null; state = null;
+  user = null; profile = null; lang = null; level = null; deckKey = null; state = null;
   try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
   $('#login-user').value = '';
   showScreen('login');
@@ -1227,34 +1355,82 @@ $('#logout-top').addEventListener('click', logout);
 $('#logout-btn').addEventListener('click', logout);
 
 /* ---------- languages page ---------- */
+function miniBars(counts) {
+  const max = Math.max(5, ...counts.slice(1, 6));
+  return [1, 2, 3, 4, 5].map(b => `<i style="background:${BOX_COLORS[b]};height:${counts[b] ? Math.max(8, Math.round(counts[b] / max * 100)) : 4}%"></i>`).join('');
+}
 function renderLangs() {
   $('#hello-name').textContent = USERS[user].name;
   if (profile.hintDismissed) $('#install-hint').classList.add('hidden');
   $('#lang-list').innerHTML = Object.entries(LANGS).map(([l, L]) => {
-    const d = getDeck(l);
-    const counts = boxCounts(d);
-    const total = todayTotal(d);
-    const max = Math.max(5, ...counts.slice(1, 6));
-    const bars = [1, 2, 3, 4, 5].map(b => `<i style="background:${BOX_COLORS[b]};height:${counts[b] ? Math.max(8, Math.round(counts[b] / max * 100)) : 4}%"></i>`).join('');
-    return `<button type="button" class="lang-card" data-lang="${l}" aria-label="${L.name}، ${num(total)} کارت برای امروز">
+    const counts = Array(7).fill(0); let todayN = 0, total = 0, best = 0;
+    for (const lv of LEVELS[l]) {
+      const sm = summarize(l, lv.id);
+      sm.counts.forEach((n, i) => counts[i] += n);
+      if (sm.started) todayN += sm.today;   // levels not yet opened don't count toward today
+      total += sm.total; best = Math.max(best, sm.streak);
+    }
+    return `<button type="button" class="lang-card" data-lang="${l}" aria-label="${L.name}، ${num(todayN)} کارت برای امروز">
       <div class="head">
-        <div><span class="native" lang="${l}">${L.native}</span><span class="faname">${L.name} به فارسی</span></div>
-        <div class="due ${total ? '' : 'zero'}"><b>${num(total)}</b><span>${total ? 'برای امروز' : 'امروز تمام'}</span></div>
+        <div><span class="native" lang="${l}">${L.native}</span><span class="faname">${L.name} به فارسی، ${num(LEVELS[l].length - 1)} سطح</span></div>
+        <div class="due ${todayN ? '' : 'zero'}"><b>${num(todayN)}</b><span>${todayN ? 'برای امروز' : 'امروز تمام'}</span></div>
       </div>
-      <div class="mini" aria-hidden="true">${bars}</div>
-      <div class="foot"><span><b>${num(d.cards.length)}</b> کارت</span><span>آموخته: <b>${num(counts[MASTERED])}</b></span><span>پشت سر هم: <b>${num(streak(d))}</b> روز</span></div>
+      <div class="mini" aria-hidden="true">${miniBars(counts)}</div>
+      <div class="foot"><span><b>${num(total)}</b> کارت</span><span>آموخته: <b>${num(counts[MASTERED])}</b></span><span>پشت سر هم: <b>${num(best)}</b> روز</span></div>
     </button>`;
   }).join('');
-  $('#lang-list').querySelectorAll('.lang-card').forEach(b => b.onclick = () => openDeck(b.dataset.lang));
+  $('#lang-list').querySelectorAll('.lang-card').forEach(b => b.onclick = () => openLang(b.dataset.lang));
 }
-function openDeck(l) {
-  lang = l; state = getDeck(l);
+function openLang(l) {
+  lang = l;
+  loadVocab(l); loadDict(l);
+  showScreen('levels');
+}
+
+/* ---------- levels page ---------- */
+const SOURCES = {
+  en: 'منابع: فهرست‌های Oxford 3000 و Oxford 5000 (سطح‌بندی CEFR، انتشارات دانشگاه آکسفورد) و Academic Word List (Averil Coxhead, 2000). هم‌ترازی سطح‌ها با نمره آیلتس طبق جدول رسمی آیلتس است. معنی‌های فارسی برای این برنامه نوشته شده‌اند.',
+  es: 'منبع: ELELex، فهرست سطح‌بندی‌شده واژگان اسپانیایی برای خارجی‌زبانان از پروژه CEFRLex، دانشگاه لووَن (مجوز CC BY-NC-SA 4.0). سطح هر لغت اولین سطحی است که در کتاب‌های درسی آن سطح به‌طور پایدار ظاهر می‌شود؛ لغات نادر و منطقه‌ای حذف شده‌اند. معنی‌های فارسی برای این برنامه نوشته شده‌اند.'
+};
+function renderLevels() {
+  const L = LANGS[lang];
+  $('#h-levels').textContent = L.name;
+  $('#levels-native').textContent = L.native;
+  $('#level-list').innerHTML = LEVELS[lang].map(lv => {
+    const sm = summarize(lang, lv.id);
+    const started = sm.total - sm.counts[0];
+    const pct = sm.total ? Math.round(started / sm.total * 100) : 0;
+    const mpct = sm.total ? Math.round(sm.counts[MASTERED] / sm.total * 100) : 0;
+    return `<button type="button" class="lvl ${lv.id === 'mine' ? 'mine' : ''}" data-lv="${lv.id}">
+      <span class="code">${lv.code}</span>
+      <span class="info"><b>${lv.name}</b><small>${lv.sub}</small>
+        <span class="bar" aria-hidden="true"><i class="s" style="width:${pct}%"></i><i class="m" style="width:${mpct}%"></i></span>
+        <small>${num(sm.total)} کارت؛ ${num(started)} شروع‌شده؛ ${num(sm.counts[MASTERED])} آموخته</small></span>
+      ${sm.started ? `<span class="due ${sm.today ? '' : 'zero'}"><b>${num(sm.today)}</b><small>امروز</small></span>` : `<span class="due start"><small>شروع</small></span>`}
+    </button>`;
+  }).join('');
+  $('#level-list').querySelectorAll('.lvl').forEach(b => b.onclick = () => openDeck(b.dataset.lv));
+  $('#sources').textContent = SOURCES[lang];
+}
+async function openDeck(lv) {
+  const d = getDeck(lang, lv);
+  if (lv !== 'mine') {
+    let v = VOCAB[lang];
+    if (!v) { toast('در حال بارگذاری لغات…'); v = await loadVocab(lang); }
+    if (!v) { toast('بار اول برای دریافت لغات این سطح اینترنت لازم است.'); return; }
+    state = materialize(lang, lv, d);
+  } else state = d;
+  level = lv; deckKey = dkey(lang, lv);
   filter = 'all'; $('#search').value = '';
-  loadDict(l);
   showScreen('deck');
   showView('home');
 }
-function closeDeck() { lang = null; state = null; showScreen('langs'); }
+function closeDeck() { save(); state = null; level = null; deckKey = null; showScreen('levels'); }
+const isLevelDeck = () => !!state && state.kind === 'level';
+function deckTitle() {
+  const L = LANGS[lang], lv = levelInfo(lang, level);
+  return level === 'mine' ? `${L.name}: لغات من` : `${L.name} ${lv.code}`;
+}
 
 (function installHint() {
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -1270,8 +1446,8 @@ function closeDeck() { lang = null; state = null; showScreen('langs'); }
 const INTERVAL_LABEL = ['', 'هر روز', '۲ روز', '۴ روز', '۸ روز', '۱۶ روز'];
 function renderHome() {
   const L = LANGS[lang];
-  $('#h-home').textContent = L.name;
-  $('#home-sub').textContent = `جعبه ${USERS[user].name}`;
+  $('#h-home').textContent = deckTitle();
+  $('#home-sub').textContent = level === 'mine' ? `جعبه ${USERS[user].name}` : `${levelInfo(lang, level).name}؛ ${levelInfo(lang, level).sub}`;
   $('#today-date').textContent = new Intl.DateTimeFormat('fa-IR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 
   const due = dueCards(), pool = newPool();
@@ -1470,8 +1646,9 @@ let filter = 'all';
 const FILTERS = [['all', 'همه'], ['0', 'جدید'], ['1', 'خانه ۱'], ['2', 'خانه ۲'], ['3', 'خانه ۳'], ['4', 'خانه ۴'], ['5', 'خانه ۵'], ['6', 'آموخته']];
 function renderCards() {
   const L = LANGS[lang], counts = boxCounts();
-  $('#h-cards').textContent = `کارت‌های ${L.name}`;
-  $('#cards-total').textContent = `${num(state.cards.length)} کارت`;
+  $('#h-cards').textContent = `کارت‌های ${deckTitle().replace(':', '،')}`;
+  $('#cards-total').textContent = isLevelDeck() ? `${num(state.cards.length)} کارت؛ برای افزودن لغت به «لغات من» بروید` : `${num(state.cards.length)} کارت`;
+  document.querySelector('#view-cards .toolbar').classList.toggle('hidden', isLevelDeck());
   $('#search').placeholder = `جستجوی کلمه ${L.name} یا فارسی`;
   $('#chips').innerHTML = FILTERS.map(([k, l]) => `<button type="button" class="chip" data-f="${k}" aria-pressed="${filter === k}">${l} (${num(k === 'all' ? state.cards.length : counts[+k])})</button>`).join('');
   $('#chips').querySelectorAll('.chip').forEach(b => b.onclick = () => { filter = b.dataset.f; renderCards(); });
@@ -1482,13 +1659,14 @@ function renderCards() {
   list = list.slice().sort((a, b) => a.box - b.box || a.order - b.order);
   $('#list-count').textContent = q.trim() || filter !== 'all' ? `${num(list.length)} نتیجه` : '';
   if (!list.length) {
-    $('#list').innerHTML = `<div class="empty">${q.trim() ? 'کارتی با این جستجو پیدا نشد. با «افزودن لغت» آن را اضافه کنید.' : 'این خانه فعلاً خالی است.'}</div>`;
+    $('#list').innerHTML = `<div class="empty">${q.trim() ? (isLevelDeck() ? 'این لغت در این سطح نیست. می‌توانید آن را در «لغات من» اضافه کنید.' : 'کارتی با این جستجو پیدا نشد. با «افزودن لغت» آن را اضافه کنید.') : 'این خانه فعلاً خالی است.'}</div>`;
     return;
   }
-  $('#list').innerHTML = list.map(c => {
+  const LIMIT = 300, shown = list.slice(0, LIMIT);
+  $('#list').innerHTML = shown.map(c => {
     const badge = c.box === 0 ? `<span class="badge new">نو</span>` : c.box === MASTERED ? `<span class="badge mastered">✓</span>` : `<span class="badge" style="--bx:${BOX_COLORS[c.box]}">${num(c.box)}</span>`;
-    return `<button type="button" class="item" data-id="${c.id}"><span class="t"><span class="lat" lang="${lang}">${esc(c.term)}</span><span class="f">${esc(c.fa)}</span></span>${badge}</button>`;
-  }).join('');
+    return `<button type="button" class="item" data-id="${esc(c.id)}"><span class="t"><span class="lat" lang="${lang}">${esc(c.term)}</span><span class="f">${esc(c.fa)}</span></span>${badge}</button>`;
+  }).join('') + (list.length > LIMIT ? `<div class="list-more">${num(list.length - LIMIT)} کارت دیگر؛ برای پیدا کردن، جستجو کنید یا خانه را انتخاب کنید.</div>` : '');
   $('#list').querySelectorAll('.item').forEach(b => b.onclick = () => editCard(b.dataset.id));
 }
 $('#search').addEventListener('input', renderCards);
@@ -1522,14 +1700,16 @@ function replaceRange(input, start, end, text) {
 
 function editCard(id) {
   const L = LANGS[lang], c = id ? byId(id) : null;
+  const ro = !!c && isLevelDeck();   // level words: the word itself is fixed, meaning and note are editable
+  const overridden = ro && (c.fa !== c.base[0] || c.note !== c.base[1]);
   const sheet = openSheet(`
     <h2>${c ? 'ویرایش کارت' : `لغت تازه ${L.name}`}</h2>
     <div class="field">
       <label for="f-term">کلمه ${L.name}</label>
-      <input id="f-term" class="lat" lang="${lang}" dir="ltr" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="${c ? esc(c.term) : ''}" placeholder="${esc(L.ph.term)}">
+      <input id="f-term" class="lat" lang="${lang}" dir="ltr" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="${c ? esc(c.term) : ''}" placeholder="${esc(L.ph.term)}" ${ro ? 'readonly' : ''}>
       <div class="sugg" id="f-sugg" aria-label="پیشنهادهای دیکشنری"></div>
       <div class="fstatus" id="f-status" aria-live="polite"></div>
-      ${L.accents.length ? `<div class="accents">${L.accents.map(a => `<button type="button" data-ch="${a}">${a}</button>`).join('')}</div>` : ''}
+      ${L.accents.length && !ro ? `<div class="accents">${L.accents.map(a => `<button type="button" data-ch="${a}">${a}</button>`).join('')}</div>` : ''}
     </div>
     <div class="field">
       <label for="f-fa">معنی فارسی</label>
@@ -1544,7 +1724,7 @@ function editCard(id) {
     <div class="btn-row"><button type="button" class="btn btn-primary" id="f-save">${c ? 'ذخیره تغییرات' : 'افزودن به جعبه'}</button></div>
     ${c ? `<div class="btn-row" style="margin-top:10px">
       <button type="button" class="btn btn-ghost btn-small" id="f-restart">برگرداندن به خانه ۱</button>
-      <button type="button" class="btn btn-danger btn-small" id="f-del">حذف کارت</button></div>` : ''}
+      ${ro ? (overridden ? `<button type="button" class="btn btn-ghost btn-small" id="f-orig">بازگرداندن معنی اصلی</button>` : '') : `<button type="button" class="btn btn-danger btn-small" id="f-del">حذف کارت</button>`}</div>` : ''}
   `);
   const input = sheet.querySelector('#f-term');
   const suggBox = sheet.querySelector('#f-sugg');
@@ -1555,6 +1735,7 @@ function editCard(id) {
 
   const setStatus = (cls, text) => { status.className = 'fstatus' + (cls ? ' ' + cls : ''); status.textContent = text; };
   function update() {
+    if (ro) { suggBox.innerHTML = ''; setStatus('', 'خود لغت ثابت است؛ معنی و یادداشت را می‌توانید تغییر دهید.'); return; }
     const term = input.value;
     if (term !== checkedTerm) { acceptUnknown = false; checkedTerm = null; check.classList.add('hidden'); }
     if (hasPersian(term)) { suggBox.innerHTML = ''; setStatus('warn', `این بخش برای کلمه ${L.name} است؛ صفحه‌کلید را عوض کنید.`); return; }
@@ -1598,6 +1779,11 @@ function editCard(id) {
     const term = input.value.trim().replace(/\s+/g, ' ');
     const faV = sheet.querySelector('#f-fa').value.trim();
     const note = sheet.querySelector('#f-note').value.trim();
+    if (ro) {
+      if (!faV) { toast('معنی فارسی لازم است.'); return; }
+      c.fa = faV; c.note = note; save(); closeSheet(); render(); toast('تغییرات ذخیره شد.');
+      return;
+    }
     if (!term || !faV) { toast(`هر دو بخش ${L.name} و فارسی لازم است.`); return; }
     if (hasPersian(term)) { toast(`در بخش ${L.name} حروف فارسی تایپ شده.`); return; }
     const dup = state.cards.find(x => x.id !== (c && c.id) && normTerm(x.term) === normTerm(term));
@@ -1627,14 +1813,17 @@ function editCard(id) {
     }
     save(); closeSheet(); render();
   };
-  if (c) {
+  sheet.querySelector('#f-orig')?.addEventListener('click', () => {
+    c.fa = c.base[0]; c.note = c.base[1]; save(); closeSheet(); render(); toast('معنی اصلی برگشت.');
+  });
+  if (c && !ro) {
     sheet.querySelector('#f-del').onclick = () => {
       if (!confirm(`کارت «${c.term}» حذف شود؟`)) return;
       state.cards = state.cards.filter(x => x.id !== c.id);
       save(); closeSheet(); render(); toast('کارت حذف شد.');
     };
-    sheet.querySelector('#f-restart').onclick = () => { c.box = 1; c.due = today(); save(); closeSheet(); render(); toast('کارت به خانه ۱ برگشت.'); };
   }
+  if (c) sheet.querySelector('#f-restart').onclick = () => { c.box = 1; c.due = today(); save(); closeSheet(); render(); toast('کارت به خانه ۱ برگشت.'); };
 }
 $('#add-btn').addEventListener('click', () => editCard(null));
 
@@ -1697,7 +1886,8 @@ $('#bulk-btn').addEventListener('click', () => {
 const NP_STEPS = [3, 5, 8, 10, 15, 20, 30, 50];
 function renderSettings() {
   const L = LANGS[lang];
-  $('#settings-sub').textContent = `جعبه ${L.name}`;
+  $('#settings-sub').textContent = `جعبه ${deckTitle().replace(':', '،')}`;
+  $('#reset-all').textContent = isLevelDeck() ? 'پاک کردن پیشرفت و ویرایش‌ها' : 'بازگشت به کارت‌های اولیه';
   $('#dir-fwd').textContent = `${L.name} ← فارسی`;
   $('#dir-rev').textContent = `فارسی ← ${L.name}`;
   document.querySelectorAll('#dir-seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.dir === state.settings.direction));
@@ -1752,31 +1942,33 @@ $('#import-file').addEventListener('change', async e => {
   try {
     const data = JSON.parse(await f.text());
     if (data.profile && data.profile.decks) {
-      const n = Object.values(data.profile.decks).reduce((s, d) => s + ((d && d.cards) || []).length, 0);
-      if (!confirm(`این پشتیبان ${num(n)} کارت دارد${data.user ? ` (از ${data.user})` : ''} و جای هر دو جعبه ${USERS[user].name} را می‌گیرد. ادامه می‌دهید؟`)) return;
-      const decks = {};
-      for (const l of Object.keys(LANGS)) decks[l] = data.profile.decks[l] ? normalizeDeck(data.profile.decks[l], l) : freshDeck(l);
-      profile.decks = decks;
+      const imported = normalizeProfile(data.profile);
+      const n = Object.values(imported.decks).reduce((s, d) => s + (d.kind === 'level' ? Object.keys(d.prog).length : d.cards.length), 0);
+      if (!confirm(`این پشتیبان ${num(Object.keys(imported.decks).length)} جعبه با ${num(n)} کارت ثبت‌شده دارد${data.user ? ` (از ${data.user})` : ''} و جای همه جعبه‌های ${USERS[user].name} را می‌گیرد. ادامه می‌دهید؟`)) return;
+      profile.decks = imported.decks;
+      for (const l of Object.keys(LANGS)) getDeck(l, 'mine');
     } else {
       const s = data.state || data; // version 1 backup: Spanish only
       if (!s || !Array.isArray(s.cards)) throw new Error('invalid');
       if (!confirm(`این پشتیبان نسخه قدیمی با ${num(s.cards.length)} کارت اسپانیایی است و جای جعبه اسپانیایی را می‌گیرد. ادامه می‌دهید؟`)) return;
-      profile.decks.es = normalizeDeck(s, 'es');
+      profile.decks[dkey('es', 'mine')] = normalizeDeck(s, 'es');
     }
-    state = profile.decks[lang];
-    save(); render(); toast('پشتیبان بازگردانی شد.');
+    state = null; level = null; deckKey = null;   // reopen from the restored data
+    save(); showScreen('levels'); toast('پشتیبان بازگردانی شد.');
   } catch (err) { toast('این فایل پشتیبان معتبر جعبه لایتنر نیست.'); }
 });
 $('#reset-progress').addEventListener('click', () => {
-  if (!confirm(`همه کارت‌های ${LANGS[lang].name} به حالت «جدید» برمی‌گردند و آمار این زبان پاک می‌شود. کارت‌ها حذف نمی‌شوند. ادامه می‌دهید؟`)) return;
+  if (!confirm(`همه کارت‌های «${deckTitle()}» به حالت «جدید» برمی‌گردند و آمار این جعبه پاک می‌شود. کارت‌ها حذف نمی‌شوند. ادامه می‌دهید؟`)) return;
   state.cards.forEach(c => { c.box = 0; c.due = null; c.reviews = 0; c.lapses = 0; c.last = null; });
   state.days = {}; state.newLog = {}; state.bonus = {};
   save(); render(); toast('پیشرفت صفر شد.');
 });
 $('#reset-all').addEventListener('click', () => {
-  if (!confirm(`همه کارت‌ها و پیشرفت ${LANGS[lang].name} پاک می‌شود و کارت‌های اولیه برمی‌گردند. اگر پشتیبان ندارید، اول پشتیبان بگیرید. ادامه می‌دهید؟`)) return;
-  profile.decks[lang] = freshDeck(lang); state = profile.decks[lang];
-  save(); render(); toast('این زبان به حالت اولیه برگشت.');
+  const lvl = isLevelDeck();
+  if (!confirm(lvl ? `پیشرفت و معنی‌های ویرایش‌شده «${deckTitle()}» پاک می‌شود. ادامه می‌دهید؟` : `همه کارت‌ها و پیشرفت «${deckTitle()}» پاک می‌شود و کارت‌های اولیه برمی‌گردند. اگر پشتیبان ندارید، اول پشتیبان بگیرید. ادامه می‌دهید؟`)) return;
+  if (lvl) { profile.decks[deckKey] = freshLevelDeck(); state = materialize(lang, level, profile.decks[deckKey]); }
+  else { profile.decks[deckKey] = freshDeck(lang); state = profile.decks[deckKey]; }
+  save(); render(); toast('این جعبه به حالت اولیه برگشت.');
 });
 
 /* ---------- boot ---------- */
