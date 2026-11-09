@@ -331,7 +331,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
       <div class="field">
         <label for="login-pass">رمز عبور</label>
         <div class="pw-wrap">
-          <input id="login-pass" name="password" type="password" dir="ltr" autocomplete="current-password" required>
+          <input id="login-pass" name="password" type="password" dir="ltr" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" required>
           <button type="button" class="pw-toggle" id="pw-toggle" aria-label="نمایش رمز">نمایش</button>
         </div>
       </div>
@@ -511,7 +511,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 (() => {
 'use strict';
 
-const APP_VERSION = '4.0.0';
+const APP_VERSION = '4.0.1';
 const SESSION_KEY = 'leitner:v2:session';
 const PROFILE_KEY = u => `leitner:v2:profile:${u}`;
 const LEGACY_KEY = 'leitner-es-fa:v1';
@@ -520,10 +520,11 @@ const INTERVALS = [0, 1, 2, 4, 8, 16];
 const MASTERED = 6;
 const BOX_COLORS = ['', 'var(--b1)', 'var(--b2)', 'var(--b3)', 'var(--b4)', 'var(--b5)'];
 
-/* Users: only a SHA-256 of "leitner:<user>:<password>" is stored here */
+/* Users: only a SHA-256 of "leitner:<user>:<password in lowercase>" is stored here.
+   Username and password are both case-insensitive. */
 const USERS = {
-  ayda:   { name: 'Ayda',   hash: 'b59d24547b3082dc705b0afe00e3b91a9bcda4767d9f3f5198ca839d43666624' },
-  hubert: { name: 'Hubert', hash: '994f57b337999a77abf015ea58d4d8738695f506665f73dfa390987d1042086b' }
+  ayda:   { name: 'Ayda',   hash: '6e0db88bd82d4c8f53d54ee9bd84e9012f29f1de90834543dfd737c66eaa4466' },
+  hubert: { name: 'Hubert', hash: '17ec3f9b897a58c3d157d6faff9185d5af582115402e7c6d7b7e86c2ca1e12fb' }
 };
 
 const LANGS = {
@@ -957,7 +958,7 @@ $('#pw-toggle').addEventListener('click', () => {
 $('#login-form').addEventListener('submit', e => {
   e.preventDefault();
   const key = $('#login-user').value.trim().toLowerCase();
-  const pw = $('#login-pass').value;
+  const pw = $('#login-pass').value.trim().toLowerCase();
   const u = USERS[key];
   if (u && sha256Hex(`leitner:${key}:${pw}`) === u.hash) {
     $('#login-err').textContent = '';
